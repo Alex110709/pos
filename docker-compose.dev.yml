@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  pixelzx-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        - BUILD_ENV=development
+    container_name: pixelzx-devnet
+    restart: unless-stopped
+    ports:
+      - "8545:8545"   # JSON-RPC
+      - "8546:8546"   # WebSocket
+      - "30303:30303" # P2P
+      - "6060:6060"   # Metrics
+      - "40000:40000" # Debug port
+    volumes:
+      - ./data:/app/data
+      - ./keystore:/app/keystore
+      - ./logs:/app/logs
+      - ./configs/development.yaml:/app/config.yaml:ro
+      - .:/app/src:ro  # Source code for hot reload
+    environment:
+      - PIXELZX_HOME=/app
+      - PIXELZX_CONFIG=/app/config.yaml
+      - PIXELZX_DATA_DIR=/app/data
+      - PIXELZX_CHAIN_ID=8889
+      - PIXELZX_NETWORK=devnet
+      - PIXELZX_LOG_LEVEL=debug
+      - PIXELZX_DEV_MODE=true
+    networks:
+      - pixelzx-dev-net
+    healthcheck:
+      test: ["CMD", "pixelzx", "version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # Redis for development caching
+  redis-dev:
+    image: redis:7-alpine
+    container_name: pixelzx-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+    networks:
+      - pixelzx-dev-net
+    command: redis-server --appendonly yes
+
+  # PostgreSQL for development analytics (optional)
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: pixelzx-postgres-dev
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=pixelzx_dev
+      - POSTGRES_USER=pixelzx
+      - POSTGRES_PASSWORD=dev_password_123
+    networks:
+      - pixelzx-dev-net
+
+volumes:
+  redis-dev-data:
+    driver: local
+  postgres-dev-data:
+    driver: local
+
+networks:
+  pixelzx-dev-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

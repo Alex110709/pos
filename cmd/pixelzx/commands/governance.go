@@ -148,7 +148,7 @@ func governanceSubmitCmd() *cobra.Command {
 		Long: `새로운 거버넌스 제안을 제출합니다.
 
 제안 요구사항:
-- 최소 보증금: 100,000 PXZ
+- 최소 보증금: 1,000,000,000 PXZ (10억 PXZ)
 - 토론 기간: 7일
 - 투표 기간: 14일`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -177,7 +177,7 @@ func governanceSubmitCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&title, "title", "", "제안 제목 (필수)")
 	cmd.Flags().StringVar(&description, "description", "", "제안 설명 (필수)")
-	cmd.Flags().StringVar(&deposit, "deposit", "100000", "보증금 (PXZ)")
+	cmd.Flags().StringVar(&deposit, "deposit", "1000000000", "보증금 (PXZ)")
 	cmd.Flags().StringVar(&password, "password", "", "지갑 비밀번호")
 
 	cmd.MarkFlagRequired("title")

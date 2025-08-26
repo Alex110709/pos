@@ -49,7 +49,7 @@ func configShowCmd() *cobra.Command {
 				// 특정 키 값 조회 (실제 구현 필요)
 				switch key {
 				case "chain_id":
-					fmt.Printf("  값: 1337\n")
+					fmt.Printf("  값: 8888\n")
 				case "block_time":
 					fmt.Printf("  값: 3s\n")
 				case "gas_limit":
@@ -61,7 +61,7 @@ func configShowCmd() *cobra.Command {
 			}
 
 			fmt.Printf("\n🌐 네트워크 설정:\n")
-			fmt.Printf("  체인 ID: 1337\n")
+			fmt.Printf("  체인 ID: 8888\n")
 			fmt.Printf("  네트워크 이름: pixelzx-pos\n")
 			fmt.Printf("  블록 타임: 3초\n")
 			fmt.Printf("  에포크 길이: 200 블록\n")

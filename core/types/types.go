@@ -148,16 +148,16 @@ const (
 	TokenName     = "PIXELZX"
 	TokenSymbol   = "PXZ"
 	TokenDecimals = 18
-	TotalSupply   = "1000000000000000000000000000" // 1 billion PXZ in wei
+	TotalSupply   = "10000000000000000000000000000000000" // 1경 PXZ in wei (10^34)
 
 	// Network constants
-	DefaultChainID = 1337
+	DefaultChainID = 8888 // PIXELZX Production Chain ID
 	BlockTime      = 3 * time.Second
 	EpochLength    = 200
 
 	// Staking constants
-	MinValidatorStake = "100000000000000000000000" // 100,000 PXZ in wei
-	MinDelegatorStake = "1000000000000000000"      // 1 PXZ in wei
+	MinValidatorStake = "1000000000000000000000000000" // 1,000,000,000 PXZ in wei (10억 PXZ)
+	MinDelegatorStake = "10000000000000000000000"      // 10,000 PXZ in wei
 	MaxValidators     = 125
 	UnbondingPeriod   = 21 * 24 * time.Hour        // 21 days
 
@@ -166,7 +166,7 @@ const (
 	DefaultGasPrice = 20000000000 // 20 Gwei
 
 	// Governance constants
-	MinDeposit         = "100000000000000000000000" // 100,000 PXZ in wei
+	MinDeposit         = "1000000000000000000000000000" // 1,000,000,000 PXZ in wei (10억 PXZ)
 	DepositPeriod      = 7 * 24 * time.Hour         // 7 days
 	VotingPeriod       = 14 * 24 * time.Hour        // 14 days
 	Quorum             = "200000000000000000"        // 20% (0.2)

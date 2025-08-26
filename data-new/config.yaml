@@ -1,0 +1,71 @@
+# PIXELZX POS EVM Chain Configuration
+
+# Network Configuration
+network:
+  name: "pixelzx-testnet-1quad"
+  chain_id: 1337
+  block_time: 3s
+  epoch_length: 200
+
+# Node Configuration
+node:
+  name: "pixelzx-node"
+  datadir: "./data"
+  log_level: "info"
+
+# P2P Network
+p2p:
+  port: 30303
+  max_peers: 50
+  bootnode_addrs: []
+
+# JSON-RPC API
+rpc:
+  enabled: true
+  host: "0.0.0.0"
+  port: 8545
+  cors_origins: ["*"]
+  apis: ["eth", "net", "web3", "personal", "admin", "debug", "txpool", "pxz"]
+
+# WebSocket API
+websocket:
+  enabled: true
+  host: "0.0.0.0"
+  port: 8546
+  origins: ["*"]
+  apis: ["eth", "net", "web3", "pxz"]
+
+# Validator Configuration
+validator:
+  enabled: false
+  address: ""
+  password_file: ""
+
+# Staking Configuration
+staking:
+  min_validator_stake: "1000000000000000000000000000"  # 1,000,000,000 PXZ (10억 PXZ)
+  min_delegator_stake: "10000000000000000000000"       # 10,000 PXZ
+  unbonding_period: "504h"                         # 21 days
+  max_validators: 125
+
+# Gas Configuration
+gas:
+  limit: 30000000
+  price: 20000000000
+  min_price: 1000000000
+
+# Security
+security:
+  keystore_dir: "./keystore"
+
+# Metrics
+metrics:
+  enabled: true
+  host: "0.0.0.0"
+  port: 6060
+
+# Database
+database:
+  type: "leveldb"
+  cache: 512
+  handles: 256

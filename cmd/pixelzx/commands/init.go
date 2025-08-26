@@ -88,7 +88,7 @@ func InitCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&genesisPath, "genesis", "", "제네시스 파일 경로")
-	cmd.Flags().Uint64Var(&chainID, "chain-id", 1337, "체인 ID")
+	cmd.Flags().Uint64Var(&chainID, "chain-id", 8888, "체인 ID")
 	cmd.Flags().StringVar(&networkName, "network", "pixelzx-pos", "네트워크 이름")
 
 	return cmd
@@ -161,8 +161,8 @@ func loadGenesis(path string) (*Genesis, error) {
 }
 
 func createDefaultGenesis(chainID uint64, networkName string) *Genesis {
-	// PIXELZX 토큰 총 공급량: 1,000,000,000 PXZ (1e27 wei)
-	totalSupply := "1000000000000000000000000000"
+	// PIXELZX 토큰 총 공급량: 10,000,000,000,000,000 PXZ (1경 PXZ, 1e34 wei)
+	totalSupply := "10000000000000000000000000000000000"
 	
 	// 기본 계정에 전체 공급량 할당
 	defaultAccount := "0x742d35Cc6635C0532925a3b8D5C0532925b8D5C05"
@@ -192,8 +192,8 @@ func createDefaultGenesis(chainID uint64, networkName string) *Genesis {
 			POS: POSConfig{
 				Period:                3,                                    // 3초 블록 타임
 				Epoch:                 200,                                  // 200 블록 에포크
-				MinValidatorStake:     "100000000000000000000000",           // 100,000 PXZ
-				MinDelegatorStake:     "1000000000000000000",                // 1 PXZ
+				MinValidatorStake:     "1000000000000000000000000000",           // 1,000,000,000 PXZ (10억 PXZ)
+				MinDelegatorStake:     "10000000000000000000000",                // 10,000 PXZ
 				MaxValidators:         125,                                  // 최대 125명 검증자
 				UnbondingPeriod:       1814400,                              // 21일 (초)
 				SlashingPenalty:       "50000000000000000",                  // 5% (0.05)
@@ -259,8 +259,8 @@ validator:
 
 # Staking Configuration
 staking:
-  min_validator_stake: "100000000000000000000000"  # 100,000 PXZ
-  min_delegator_stake: "1000000000000000000"       # 1 PXZ
+  min_validator_stake: "1000000000000000000000000000"  # 1,000,000,000 PXZ (10억 PXZ)
+  min_delegator_stake: "10000000000000000000000"       # 10,000 PXZ
   unbonding_period: "504h"                         # 21 days
   max_validators: 125
 

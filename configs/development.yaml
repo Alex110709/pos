@@ -1,0 +1,124 @@
+# PIXELZX POS EVM Chain Development Configuration
+
+# Network Configuration
+network:
+  name: "pixelzx-devnet"
+  chain_id: 8889
+  block_time: 3s
+  epoch_length: 200
+
+# Node Configuration
+node:
+  name: "pixelzx-dev-node"
+  datadir: "./data"
+  log_level: "debug"
+
+# P2P Network
+p2p:
+  port: 30303
+  max_peers: 25
+  bootnode_addrs: []
+  enable_upnp: true
+  nat: "any"
+
+# JSON-RPC API
+rpc:
+  enabled: true
+  host: "127.0.0.1"
+  port: 8545
+  cors_origins: ["*"]
+  apis: ["eth", "net", "web3", "personal", "admin", "debug", "txpool", "pxz"]
+  gas_cap: 50000000
+  tx_fee_cap: 1000000000000000000
+
+# WebSocket API
+websocket:
+  enabled: true
+  host: "127.0.0.1"
+  port: 8546
+  origins: ["*"]
+  apis: ["eth", "net", "web3", "personal", "admin", "debug", "txpool", "pxz"]
+
+# Validator Configuration
+validator:
+  enabled: false
+  address: ""
+  password_file: ""
+
+# Staking Configuration
+staking:
+  min_validator_stake: "100000000000000000000000"    # 100,000 PXZ (개발용 낮은 값)
+  min_delegator_stake: "1000000000000000000"         # 1 PXZ
+  unbonding_period: "1h"                             # 1 hour (개발용 짧은 기간)
+  max_validators: 10
+
+# Gas Configuration
+gas:
+  limit: 30000000
+  price: 1000000000
+  min_price: 1000000000
+  price_bump: 10
+
+# Security
+security:
+  keystore_dir: "./keystore"
+  auto_unlock: true
+
+# Metrics
+metrics:
+  enabled: true
+  host: "127.0.0.1"
+  port: 6060
+  expensive: true
+
+# Database
+database:
+  type: "leveldb"
+  cache: 256
+  handles: 256
+  ancient: "./data/ancient"
+  freeze_threshold: 90000
+
+# Logging
+logging:
+  level: "debug"
+  file: "./logs/pixelzx-dev.log"
+  max_size: "50M"
+  max_backups: 5
+  max_age: 7
+  compress: false
+
+# Performance
+performance:
+  cache:
+    database: 256
+    trie: 128
+    gc: 25
+  workers: 2
+  
+# Sync Configuration
+sync:
+  mode: "full"
+  gc_mode: "full"
+  snapshot: true
+  preimages: true
+
+# Transaction Pool (개발용 관대한 설정)
+txpool:
+  locals: []
+  no_locals: true
+  journal: "./data/transactions.rlp"
+  rejournal: "10m"
+  price_limit: 1
+  price_bump: 1
+  account_slots: 64
+  global_slots: 8192
+  account_queue: 128
+  global_queue: 2048
+  lifetime: "24h"
+
+# Network Security (개발용 관대한 설정)
+network_security:
+  trusted_nodes: []
+  banned_ips: []
+  rate_limit: 10000

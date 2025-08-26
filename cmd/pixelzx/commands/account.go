@@ -136,7 +136,7 @@ func accountBalanceCmd() *cobra.Command {
 			fmt.Printf("  USD 가치: $50,000.00 (예상)\n")
 
 			fmt.Printf("\n🔗 네트워크 정보:\n")
-			fmt.Printf("  체인 ID: 1337\n")
+			fmt.Printf("  체인 ID: 8888\n")
 			fmt.Printf("  최신 블록: 152,341\n")
 			fmt.Printf("  가스 가격: 20 Gwei\n")
 

@@ -286,7 +286,7 @@ func (nm *Manager) handshake(peer *Peer, rw p2p.MsgReadWriter) error {
 	// Send handshake message
 	handshake := &HandshakeMsg{
 		Version: 1,
-		Network: 1337, // PIXELZX chain ID
+		Network: 8888, // PIXELZX Production Chain ID
 		Genesis: common.Hash{}, // Genesis block hash
 		Head:    common.Hash{}, // Current head block hash
 		Height:  0,             // Current block height
@@ -313,7 +313,7 @@ func (nm *Manager) handshake(peer *Peer, rw p2p.MsgReadWriter) error {
 	}
 
 	// Validate handshake
-	if response.Network != 1337 {
+	if response.Network != 8888 {
 		return fmt.Errorf("different network: %d", response.Network)
 	}
 
