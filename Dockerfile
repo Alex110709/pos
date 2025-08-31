@@ -43,7 +43,7 @@ FROM alpine:latest
 # Install runtime dependencies
 RUN apk --no-cache add ca-certificates tzdata
 
-# Create app user for security
+# Create app user for security with explicit UID/GID
 RUN addgroup -g 1001 -S pixelzx && \
     adduser -u 1001 -S pixelzx -G pixelzx
 
@@ -53,12 +53,19 @@ WORKDIR /app
 # Copy binary from builder stage
 COPY --from=builder /app/bin/pixelzx /usr/local/bin/pixelzx
 
-# Create data directories
-RUN mkdir -p /app/data /app/keystore /app/logs && \
-    chown -R pixelzx:pixelzx /app
+# Make binary executable
+RUN chmod +x /usr/local/bin/pixelzx
 
-# Copy configuration files
-COPY --chown=pixelzx:pixelzx configs/production.yaml /app/config.yaml
+# Create data directories with proper permissions
+RUN mkdir -p /app/data /app/keystore /app/logs && \
+    chown -R 1001:1001 /app && \
+    chmod -R 755 /app
+
+# Copy configuration files with proper ownership
+COPY --chown=1001:1001 configs/production.yaml /app/config.yaml
+
+# Ensure pixelzx user can write to necessary directories
+RUN chown -R pixelzx:pixelzx /app/data /app/keystore /app/logs
 
 # Switch to app user
 USER pixelzx

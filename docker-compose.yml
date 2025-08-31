@@ -1,6 +1,37 @@
 version: '3.8'
 
 services:
+  # 권한 초기화 헬퍼 서비스
+  pixelzx-init:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+        - linux/arm/v7
+    container_name: pixelzx-init-helper
+    platform: ${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
+    volumes:
+      - pixelzx-data:/app/data
+      - pixelzx-keystore:/app/keystore
+      - pixelzx-logs:/app/logs
+    environment:
+      - PIXELZX_CHAIN_ID=8888
+      - PIXELZX_NETWORK=mainnet
+    command: >
+      sh -c "
+        echo '🔍 권한 및 디렉터리 설정 중...' &&
+        mkdir -p /app/data /app/keystore /app/logs &&
+        chown -R 1001:1001 /app/data /app/keystore /app/logs &&
+        chmod -R 755 /app/data /app/keystore /app/logs &&
+        echo '🚀 PIXELZX 체인 초기화 중...' &&
+        /usr/local/bin/pixelzx init --datadir /app/data --chain-id 8888 --network mainnet &&
+        echo '✅ 초기화 완료!'
+      "
+    profiles:
+      - init
+
   pixelzx-node:
     build:
       context: .
@@ -42,6 +73,8 @@ services:
       options:
         max-size: "100m"
         max-file: "5"
+    depends_on:
+      - pixelzx-init
 
   # Optional: Monitoring with Prometheus (uncomment if needed)
   # prometheus:

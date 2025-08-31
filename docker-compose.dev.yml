@@ -4,14 +4,12 @@ services:
   pixelzx-dev:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       platforms:
         - linux/amd64
         - linux/arm64
         - linux/arm/v7
-      args:
-        - BUILD_ENV=development
-    container_name: pixelzx-devnet
+    container_name: pixelzx-dev-node
     restart: unless-stopped
     platform: ${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
     ports:
@@ -19,22 +17,22 @@ services:
       - "8546:8546"   # WebSocket
       - "30303:30303" # P2P
       - "6060:6060"   # Metrics
-      - "40000:40000" # Debug port
     volumes:
-      - ./data:/app/data
-      - ./keystore:/app/keystore
-      - ./logs:/app/logs
+      # 권한 문제 해결을 위한 볼륨 설정
+      - ./data:/app/data:rw
+      - ./keystore:/app/keystore:rw
+      - ./logs:/app/logs:rw
       - ./configs/development.yaml:/app/config.yaml:ro
-      - .:/app/src:ro  # Source code for hot reload
     environment:
       - PIXELZX_HOME=/app
       - PIXELZX_CONFIG=/app/config.yaml
       - PIXELZX_DATA_DIR=/app/data
-      - PIXELZX_CHAIN_ID=8889
-      - PIXELZX_NETWORK=devnet
+      - PIXELZX_CHAIN_ID=8888
+      - PIXELZX_NETWORK=development
       - PIXELZX_LOG_LEVEL=debug
-      - PIXELZX_DEV_MODE=true
       - PIXELZX_PLATFORM=${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
+    # 권한 문제 해결을 위한 사용자 설정
+    user: "${UID:-1001}:${GID:-1001}"
     networks:
       - pixelzx-dev-net
     healthcheck:
@@ -42,47 +40,24 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
+      start_period: 60s
     logging:
       driver: "json-file"
       options:
         max-size: "50m"
         max-file: "3"
-
-  # Redis for development caching
-  redis-dev:
-    image: redis:7-alpine
-    container_name: pixelzx-redis-dev
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-dev-data:/data
-    networks:
-      - pixelzx-dev-net
-    command: redis-server --appendonly yes
-
-  # PostgreSQL for development analytics (optional)
-  postgres-dev:
-    image: postgres:15-alpine
-    container_name: pixelzx-postgres-dev
-    restart: unless-stopped
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-dev-data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=pixelzx_dev
-      - POSTGRES_USER=pixelzx
-      - POSTGRES_PASSWORD=dev_password_123
-    networks:
-      - pixelzx-dev-net
-
-volumes:
-  redis-dev-data:
-    driver: local
-  postgres-dev-data:
-    driver: local
+    # 개발 환경에서 초기화를 위한 설정
+    command: >
+      sh -c "
+        echo '🔍 권한 확인 중...' &&
+        ls -la /app/ &&
+        echo '📁 디렉터리 생성 중...' &&
+        mkdir -p /app/data /app/keystore /app/logs &&
+        echo '🚀 PIXELZX 초기화 시작...' &&
+        /usr/local/bin/pixelzx init --datadir /app/data --chain-id 8888 --network development &&
+        echo '✅ 초기화 완료, 노드 시작...' &&
+        /usr/local/bin/pixelzx start --config /app/config.yaml --datadir /app/data
+      "
 
 networks:
   pixelzx-dev-net:
@@ -90,3 +65,23 @@ networks:
     ipam:
       config:
         - subnet: 172.21.0.0/16
+
+# 개발 환경 도우미 명령어들
+x-dev-commands:
+  init: &init-command
+    docker-compose -f docker-compose.dev.yml run --rm pixelzx-dev /usr/local/bin/pixelzx init --datadir /app/data
+  
+  start: &start-command
+    docker-compose -f docker-compose.dev.yml up -d
+  
+  logs: &logs-command
+    docker-compose -f docker-compose.dev.yml logs -f pixelzx-dev
+  
+  shell: &shell-command
+    docker-compose -f docker-compose.dev.yml exec pixelzx-dev sh
+  
+  stop: &stop-command
+    docker-compose -f docker-compose.dev.yml down
+  
+  permission-fix: &permission-fix-command
+    sudo chown -R $(id -u):$(id -g) ./data ./keystore ./logs

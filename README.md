@@ -32,6 +32,7 @@ PIXELZX를 네이티브 토큰으로 하는 Proof of Stake (POS) 기반 Ethereum
   - [초기화 검증](#초기화-검증)
 - [API 엔드포인트](#api-엔드포인트)
 - [**문제 해결**](#문제-해결) 🚑
+  - [권한 문제 해결](#권한-문제-해결)
   - [Docker 관련 문제](#docker-관련-문제)
   - [P2P 네트워크 문제](#p2p-네트워크-문제)
   - [API 연결 문제](#api-연결-문제)
@@ -646,6 +647,155 @@ docker logs pixelzx-node | grep -i fatal
 - **프로토콜**: TCP/UDP
 
 ## 문제 해결
+
+### 권한 문제 해결
+
+PIXELZX 노드 초기화 시 발생할 수 있는 권한 문제와 해결 방법을 안내합니다.
+
+#### 일반적인 권한 오류
+
+다음과 같은 오류가 발생할 수 있습니다:
+```bash
+Error: 키스토어 디렉터리 생성 실패: mkdir data/keystore: permission denied
+```
+
+#### 자동 권한 검증 및 해결 가이드
+
+PIXELZX v2.0부터는 자동 권한 검증 및 상세한 해결 가이드를 제공합니다:
+
+```bash
+# 권한 검증이 포함된 초기화
+./pixelzx init
+
+# 권한 오류 발생 시 자동으로 해결 방법 안내
+```
+
+#### 로컬 환경 해결 방법
+
+**1. 관리자 권한 사용**
+```bash
+# 전체 과정을 관리자 권한으로 실행
+sudo ./pixelzx init
+sudo ./pixelzx start
+```
+
+**2. 홈 디렉터리 사용 (귀장)**
+```bash
+# 홈 디렉터리에 데이터 저장
+./pixelzx init --datadir ~/pixelzx-data
+./pixelzx start --datadir ~/pixelzx-data
+```
+
+**3. 임시 디렉터리 사용 (테스트용)**
+```bash
+# 임시 디렉터리에 데이터 저장
+./pixelzx init --datadir /tmp/pixelzx-data
+./pixelzx start --datadir /tmp/pixelzx-data
+```
+
+**4. 디렉터리 소유권 변경**
+```bash
+# 현재 사용자로 소유권 변경
+sudo chown -R $USER:$USER ./data
+chmod -R 755 ./data
+
+# 이후 일반 사용자로 실행 가능
+./pixelzx init
+./pixelzx start
+```
+
+#### Docker 환경 해결 방법
+
+**1. Docker 도우미 스크립트 사용 (귀장)**
+```bash
+# 권한 문제 자동 해결 도구
+./docker-helper.sh check  # 권한 상태 확인
+./docker-helper.sh fix    # 권한 문제 자동 수정
+./docker-helper.sh init   # 체인 초기화
+./docker-helper.sh start  # 노드 시작
+```
+
+**2. 수동 권한 설정**
+```bash
+# 호스트 볼륨 권한 설정
+sudo chown -R 1001:1001 ./data ./keystore ./logs
+chmod -R 755 ./data ./keystore ./logs
+
+# Docker Compose 로 시작
+docker-compose up -d
+```
+
+**3. 개발 환경 사용**
+```bash
+# 개발용 Docker Compose (권한 문제 최소화)
+export UID=$(id -u)
+export GID=$(id -g)
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+**4. 컨테이너 내부 경로 사용**
+```bash
+# 호스트 볼륨 마운트 없이 실행
+docker run -it yuchanshin/pixelzx-evm:latest init
+docker run -d yuchanshin/pixelzx-evm:latest start
+```
+
+#### 문제 진단 및 해결 순서
+
+**1단계: 간단한 해결 시도**
+```bash
+# 홈 디렉터리로 이동 후 재시도
+cd ~ && pixelzx init --datadir ~/pixelzx-data
+```
+
+**2단계: 상세 진단**
+```bash
+# 현재 사용자 및 권한 확인
+whoami
+id
+pwd
+ls -la
+
+# 대상 디렉터리 권한 확인
+ls -la ./
+ls -la ./data 2>/dev/null || echo "데이터 디렉터리 없음"
+```
+
+**3단계: 규모또 해결**
+```bash
+# 방법1: 소유권 변경
+sudo chown -R $USER:$USER .
+
+# 방법2: 관리자 권한 사용
+sudo pixelzx init
+
+# 방법3: 다른 위치 사용
+pixelzx init --datadir /tmp/pixelzx-test
+```
+
+#### 예방 방법
+
+**설치 시 권한 설정**
+```bash
+# 빌드 시 운영 체제에 맞는 권한 설정
+make install-with-permissions
+
+# 또는 수동 설치
+sudo cp bin/pixelzx /usr/local/bin/
+sudo chmod +x /usr/local/bin/pixelzx
+sudo mkdir -p /etc/pixelzx /var/lib/pixelzx
+sudo chown $USER:$USER /var/lib/pixelzx
+```
+
+**환경 변수 설정**
+```bash
+# .bashrc 또는 .zshrc에 추가
+export PIXELZX_HOME=$HOME/.pixelzx
+export PIXELZX_DATA_DIR=$PIXELZX_HOME/data
+
+# 사용당 시 자동 디렉터리 설정
+pixelzx init  # 자동으로 $PIXELZX_DATA_DIR 사용
+```
 
 ### Docker 관련 문제
 
