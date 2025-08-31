@@ -12,6 +12,14 @@ GOMOD=$(GOCMD) mod
 BINARY_NAME=pixelzx
 BINARY_PATH=./bin/$(BINARY_NAME)
 
+# Docker Hub configuration
+DOCKER_REGISTRY=yuchanshin
+DOCKER_IMAGE=pixelzx-evm
+DOCKER_TAG=latest
+
+# Get version from git
+VERSION=$(shell git describe --tags --always --dirty)
+
 # Build target
 .PHONY: all build clean test deps run init
 
@@ -78,6 +86,29 @@ dev-deps:
 docker-build:
 	@echo "Building Docker image..."
 	docker build -t pixelzx/pos:latest .
+
+# Docker Hub commands
+docker-build-hub:
+	@echo "Building Docker image for Docker Hub..."
+	docker build -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG) .
+	docker build -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(VERSION) .
+
+docker-push-hub:
+	@echo "Pushing Docker image to Docker Hub..."
+	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(VERSION)
+
+docker-login:
+	@echo "Logging into Docker Hub..."
+	docker login
+
+docker-deploy-hub: docker-build-hub docker-push-hub
+	@echo "Docker Hub deployment completed!"
+	docker images | grep $(DOCKER_REGISTRY)/$(DOCKER_IMAGE)
+
+docker-test-hub:
+	@echo "Testing Docker Hub image..."
+	docker run --rm $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG) pixelzx version
 
 docker-build-dev:
 	@echo "Building development Docker image..."
@@ -173,6 +204,11 @@ help:
 	@echo "  docker-run       - Run Docker container"
 	@echo "  docker-stop      - Stop Docker container"
 	@echo "  docker-clean     - Clean Docker resources"
+	@echo "  docker-build-hub - Build Docker image for Docker Hub"
+	@echo "  docker-push-hub  - Push Docker image to Docker Hub"
+	@echo "  docker-login     - Login to Docker Hub"
+	@echo "  docker-deploy-hub- Build and push to Docker Hub"
+	@echo "  docker-test-hub  - Test Docker Hub image"
 	@echo ""
 	@echo "Docker Compose commands:"
 	@echo "  compose-up       - Start production environment"
