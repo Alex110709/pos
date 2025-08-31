@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # validate-multiarch.sh - PIXELZX 멀티 아키텍처 이미지 검증 스크립트
 
 set -e
@@ -34,9 +34,7 @@ echo ""
 
 # 4. 플랫폼별 실행 테스트
 echo "4. 플랫폼별 실행 테스트"
-platforms=("linux/amd64" "linux/arm64" "linux/arm/v7")
-
-for platform in "${platforms[@]}"; do
+for platform in "linux/amd64" "linux/arm64" "linux/arm/v7"; do
     echo "   테스트 중: $platform"
     # version 명령어 대신 간단한 테스트
     if docker run --platform $platform --rm yuchanshin/pixelzx-evm:latest >/dev/null 2>&1; then

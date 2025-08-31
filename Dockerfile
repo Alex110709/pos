@@ -41,7 +41,7 @@ RUN echo "Building for platform: ${TARGETPLATFORM} (OS: ${TARGETOS}, ARCH: ${TAR
 FROM alpine:latest
 
 # Install runtime dependencies
-RUN apk --no-cache add ca-certificates tzdata
+RUN apk --no-cache add ca-certificates tzdata bash
 
 # Create app user for security with explicit UID/GID
 RUN addgroup -g 1001 -S pixelzx && \

@@ -55,14 +55,6 @@ docker-compose -f docker-compose.production.yml logs -f pixelzx-node
 - `v{major}.{minor}.{patch}`: 특정 릴리즈 버전 (예: v1.0.0)
 - `{commit-hash}`: 특정 커밋 버전 (개발/테스트용)
 
-## 이미지 정보
-
-### 태그 설명
-
-- `latest`: 최신 릴리즈 버전 (프로덕션 환경 권장)
-- `v{major}.{minor}.{patch}`: 특정 릴리즈 버전 (예: v1.0.0)
-- `{commit-hash}`: 특정 커밋 버전 (개발/테스트용)
-
 ### 멀티 아키텍처 지원
 
 지원되는 플랫폼:
@@ -221,7 +213,7 @@ docker run --rm \
 
 **해결방법**:
 
-```bash
+``bash
 # 방법 1: 자동 플랫폼 감지 (권장)
 docker run --rm yuchanshin/pixelzx-evm:latest /usr/local/bin/pixelzx version
 
@@ -236,10 +228,30 @@ uname -m
 docker buildx imagetools inspect yuchanshin/pixelzx-evm:latest
 ```
 
-### 2. 일반적인 문제
+### 2. Bash Not Found Error
+
+**문제**: `CI runtime exec failed: exec failed: unable to start container process: exec: "bash": executable file not found in $PATH: unknown`
+
+**원인**: Alpine Linux 기반 컨테이너에는 bash가 기본적으로 설치되어 있지 않음
+
+**해결방법**:
+
+PIXELZX 이미지는 이제 bash를 포함하도록 업데이트되었습니다. 최신 이미지를 사용하는 경우 이 문제가 발생하지 않습니다:
+
+```bash
+# 최신 이미지로 업데이트
+docker pull yuchanshin/pixelzx-evm:latest
+
+# bash가 설치되었는지 확인
+docker run --rm yuchanshin/pixelzx-evm:latest which bash
+```
+
+또한 모든 스크립트가 sh 호환 구문을 사용하도록 업데이트되어 Alpine Linux 환경에서도 정상적으로 작동합니다.
+
+### 3. 일반적인 문제
 
 **포트 충돌**
-```bash
+``bash
 # 사용 중인 포트 확인
 netstat -tulpn | grep :8545
 

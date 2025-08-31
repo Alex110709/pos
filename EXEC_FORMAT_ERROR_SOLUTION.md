@@ -83,6 +83,34 @@ PIXELZX POS EVM 체인 이미지는 이제 멀티 아키텍처를 지원합니�
 
 Docker는 자동으로 호스트 시스템에 맞는 이미지를 선택하여 실행합니다.
 
+## Bash Not Found Error 해결
+
+### 문제 설명
+
+컨테이너 내에서 bash를 사용하려고 할 때 다음과 같은 오류가 발생하는 경우가 있습니다:
+
+```
+CI runtime exec failed: exec failed: unable to start container process: exec: "bash": executable file not found in $PATH: unknown
+```
+
+이 오류는 Alpine Linux 기반 이미지에는 bash가 기본적으로 설치되어 있지 않기 때문에 발생합니다.
+
+### 해결 방법
+
+PIXELZX 이미지는 이제 bash를 포함하도록 업데이트되었습니다:
+
+1. 최신 이미지로 업데이트:
+   ```bash
+   docker pull yuchanshin/pixelzx-evm:latest
+   ```
+
+2. bash가 설치되었는지 확인:
+   ```bash
+   docker run --rm yuchanshin/pixelzx-evm:latest which bash
+   ```
+
+또한 모든 스크립트가 sh 호환 구문을 사용하도록 업데이트되어 Alpine Linux 환경에서도 정상적으로 작동합니다.
+
 ## 진단 및 검증
 
 ### 시스템 아키텍처 확인
