@@ -5,10 +5,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+      platforms:
+        - linux/amd64
+        - linux/arm64
+        - linux/arm/v7
       args:
         - BUILD_ENV=development
     container_name: pixelzx-devnet
     restart: unless-stopped
+    platform: ${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
     ports:
       - "8545:8545"   # JSON-RPC
       - "8546:8546"   # WebSocket
@@ -29,10 +34,11 @@ services:
       - PIXELZX_NETWORK=devnet
       - PIXELZX_LOG_LEVEL=debug
       - PIXELZX_DEV_MODE=true
+      - PIXELZX_PLATFORM=${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
     networks:
       - pixelzx-dev-net
     healthcheck:
-      test: ["CMD", "pixelzx", "version"]
+      test: ["CMD", "/usr/local/bin/pixelzx", "version"]
       interval: 30s
       timeout: 10s
       retries: 3

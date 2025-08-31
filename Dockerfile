@@ -1,8 +1,14 @@
 # PIXELZX POS EVM Chain Dockerfile
-# Multi-stage build for production optimization
+# Multi-stage build for production optimization with multi-architecture support
 
-# Build stage
-FROM golang:1.21-alpine AS builder
+# Build arguments for multi-platform support
+ARG BUILDPLATFORM
+ARG TARGETPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+
+# Build stage with cross-compilation support
+FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache git make gcc musl-dev
@@ -19,10 +25,19 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the binary
-RUN make build
+# Set cross-compilation environment variables
+ENV CGO_ENABLED=0
+ARG TARGETOS
+ARG TARGETARCH
+ENV GOOS=${TARGETOS}
+ENV GOARCH=${TARGETARCH}
 
-# Production stage
+# Build the binary with cross-compilation support
+RUN echo "Building for platform: ${TARGETPLATFORM} (OS: ${TARGETOS}, ARCH: ${TARGETARCH})" && \
+    go build -ldflags "-s -w -X main.version=$(git describe --tags --always --dirty)" \
+    -o bin/pixelzx ./cmd/pixelzx
+
+# Production stage with target platform
 FROM alpine:latest
 
 # Install runtime dependencies
@@ -53,12 +68,18 @@ EXPOSE 8545 8546 30303
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD pixelzx version || exit 1
+    CMD /usr/local/bin/pixelzx version || exit 1
 
 # Set environment variables
 ENV PIXELZX_HOME=/app
 ENV PIXELZX_CONFIG=/app/config.yaml
 ENV PIXELZX_DATA_DIR=/app/data
+ENV PIXELZX_PLATFORM=${TARGETPLATFORM}
+
+# Display platform information
+ARG TARGETPLATFORM
+RUN echo "Container platform: ${TARGETPLATFORM}" && \
+    echo "Binary architecture: $(file /usr/local/bin/pixelzx)"
 
 # Default command
-CMD ["pixelzx", "start", "--config", "/app/config.yaml", "--datadir", "/app/data"]
+CMD ["/usr/local/bin/pixelzx", "start", "--config", "/app/config.yaml", "--datadir", "/app/data"]

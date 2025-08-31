@@ -55,10 +55,35 @@ docker-compose -f docker-compose.production.yml logs -f pixelzx-node
 - `v{major}.{minor}.{patch}`: 특정 릴리즈 버전 (예: v1.0.0)
 - `{commit-hash}`: 특정 커밋 버전 (개발/테스트용)
 
+## 이미지 정보
+
+### 태그 설명
+
+- `latest`: 최신 릴리즈 버전 (프로덕션 환경 권장)
+- `v{major}.{minor}.{patch}`: 특정 릴리즈 버전 (예: v1.0.0)
+- `{commit-hash}`: 특정 커밋 버전 (개발/테스트용)
+
+### 멀티 아키텍처 지원
+
+지원되는 플랫폼:
+- **linux/amd64**: Intel/AMD 64비트 프로세서
+- **linux/arm64**: ARM 64비트 프로세서 (Apple Silicon, ARM 서버)
+- **linux/arm/v7**: ARM 32비트 프로세서 (라즈베리파이 등)
+
+```bash
+# 매니페스트 정보 확인 (지원 플랫폼 목록)
+docker buildx imagetools inspect yuchanshin/pixelzx-evm:latest
+
+# 특정 플랫폼용 이미지 실행
+docker run --platform linux/amd64 yuchanshin/pixelzx-evm:latest /usr/local/bin/pixelzx version
+docker run --platform linux/arm64 yuchanshin/pixelzx-evm:latest /usr/local/bin/pixelzx version
+```
+
 ### 이미지 크기
 
-- **최종 이미지 크기**: 약 15MB
-- **아키텍처**: linux/arm64, linux/amd64 (멀티 아키텍처 지원)
+- **최종 이미지 크기**: 약 10MB (Alpine Linux 기반)
+- **압축된 크기**: 약 4MB
+- **베이스 이미지**: Alpine Linux (보안 최적화)
 
 ## 네트워크 포트
 
@@ -188,7 +213,30 @@ docker run --rm \
 
 ## 트러블슈팅
 
-### 1. 일반적인 문제
+### 1. Exec Format Error
+
+**문제**: `exec /usr/local/bin/pixelzx: exec format error`
+
+**원인**: 아키텍처 불일치 (예: ARM 환경에서 AMD64 이미지 실행)
+
+**해결방법**:
+
+```bash
+# 방법 1: 자동 플랫폼 감지 (권장)
+docker run --rm yuchanshin/pixelzx-evm:latest /usr/local/bin/pixelzx version
+
+# 방법 2: 플랫폼 명시적 지정
+docker run --rm --platform linux/amd64 yuchanshin/pixelzx-evm:latest /usr/local/bin/pixelzx version
+
+# 방법 3: 현재 플랫폼 확인
+docker version --format '{{.Server.Arch}}'
+uname -m
+
+# 방법 4: 이미지 플랫폼 정보 확인
+docker buildx imagetools inspect yuchanshin/pixelzx-evm:latest
+```
+
+### 2. 일반적인 문제
 
 **포트 충돌**
 ```bash

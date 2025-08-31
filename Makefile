@@ -17,11 +17,16 @@ DOCKER_REGISTRY=yuchanshin
 DOCKER_IMAGE=pixelzx-evm
 DOCKER_TAG=latest
 
+# Multi-platform build configuration
+PLATFORMS=linux/amd64,linux/arm64,linux/arm/v7
+BUILDER_NAME=pixelzx-builder
+BUILDX_ARGS=--platform $(PLATFORMS) --push
+
 # Get version from git
 VERSION=$(shell git describe --tags --always --dirty)
 
 # Build target
-.PHONY: all build clean test deps run init
+.PHONY: all build clean test deps run init buildx-setup docker-build-multi docker-push-multi docker-test-multi
 
 # Default target
 all: test build
@@ -86,6 +91,67 @@ dev-deps:
 docker-build:
 	@echo "Building Docker image..."
 	docker build -t pixelzx/pos:latest .
+
+# Docker Buildx setup
+buildx-setup:
+	@echo "Setting up Docker Buildx for multi-platform builds..."
+	@docker buildx inspect $(BUILDER_NAME) > /dev/null 2>&1 || \
+		docker buildx create --name $(BUILDER_NAME) --driver docker-container --bootstrap
+	@docker buildx use $(BUILDER_NAME)
+	@echo "Docker Buildx builder '$(BUILDER_NAME)' is ready"
+	@docker buildx ls
+
+# Multi-platform Docker build
+docker-build-multi: buildx-setup
+	@echo "Building multi-platform Docker images..."
+	@echo "Platforms: $(PLATFORMS)"
+	docker buildx build \
+		--platform $(PLATFORMS) \
+		--tag $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG) \
+		--tag $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(VERSION) \
+		.
+
+# Test build for single platform (local)
+docker-build-local: buildx-setup
+	@echo "Building local Docker image for current platform..."
+	docker buildx build \
+		--platform linux/amd64 \
+		--tag $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):local \
+		--load \
+		.
+
+# Multi-platform Docker push
+docker-push-multi: buildx-setup
+	@echo "Building and pushing multi-platform Docker images..."
+	@echo "Platforms: $(PLATFORMS)"
+	docker buildx build \
+		--platform $(PLATFORMS) \
+		--tag $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG) \
+		--tag $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(VERSION) \
+		--push \
+		.
+	@echo "Multi-platform images pushed successfully!"
+
+# Test multi-platform images
+docker-test-multi:
+	@echo "Testing multi-platform Docker images..."
+	@for platform in $(shell echo $(PLATFORMS) | tr ',' ' '); do \
+		echo "Testing platform: $$platform"; \
+		docker run --rm --platform $$platform $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG) /usr/local/bin/pixelzx version || exit 1; \
+	done
+	@echo "All platform tests passed!"
+
+# Multi-platform deployment (build + push + test)
+docker-deploy-multi: docker-push-multi docker-test-multi
+	@echo "Multi-platform Docker Hub deployment completed!"
+	@docker buildx imagetools inspect $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+
+# Cleanup buildx builder
+buildx-cleanup:
+	@echo "Cleaning up Docker Buildx builder..."
+	@docker buildx use default || true
+	@docker buildx rm $(BUILDER_NAME) || true
+	@echo "Buildx cleanup completed"
 
 # Docker Hub commands
 docker-build-hub:
@@ -208,7 +274,13 @@ help:
 	@echo "  docker-push-hub  - Push Docker image to Docker Hub"
 	@echo "  docker-login     - Login to Docker Hub"
 	@echo "  docker-deploy-hub- Build and push to Docker Hub"
-	@echo "  docker-test-hub  - Test Docker Hub image"
+	@echo "  docker-build-local   - Build local single-platform image"
+	@echo "  docker-build-multi   - Build multi-platform Docker images"
+	@echo "  docker-push-multi    - Build and push multi-platform images"
+	@echo "  docker-test-multi    - Test multi-platform images"
+	@echo "  docker-deploy-multi  - Complete multi-platform deployment"
+	@echo "  buildx-setup         - Setup Docker Buildx for multi-platform"
+	@echo "  buildx-cleanup       - Cleanup Docker Buildx builder"
 	@echo ""
 	@echo "Docker Compose commands:"
 	@echo "  compose-up       - Start production environment"

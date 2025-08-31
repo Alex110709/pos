@@ -5,8 +5,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+        - linux/arm/v7
     container_name: pixelzx-mainnet
     restart: unless-stopped
+    platform: ${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
     ports:
       - "8545:8545"   # JSON-RPC
       - "8546:8546"   # WebSocket
@@ -23,10 +28,11 @@ services:
       - PIXELZX_DATA_DIR=/app/data
       - PIXELZX_CHAIN_ID=8888
       - PIXELZX_NETWORK=mainnet
+      - PIXELZX_PLATFORM=${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
     networks:
       - pixelzx-net
     healthcheck:
-      test: ["CMD", "pixelzx", "version"]
+      test: ["CMD", "/usr/local/bin/pixelzx", "version"]
       interval: 30s
       timeout: 10s
       retries: 3

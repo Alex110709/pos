@@ -5,6 +5,7 @@ services:
     image: yuchanshin/pixelzx-evm:latest
     container_name: pixelzx-mainnet
     restart: unless-stopped
+    platform: ${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
     ports:
       - "8545:8545"   # JSON-RPC port
       - "8546:8546"   # WebSocket port
@@ -19,13 +20,14 @@ services:
       - PIXELZX_HOME=/app
       - PIXELZX_CONFIG=/app/config.yaml
       - PIXELZX_DATA_DIR=/app/data
+      - PIXELZX_PLATFORM=${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
     logging:
       driver: "json-file"
       options:
         max-size: "100m"
         max-file: "5"
     healthcheck:
-      test: ["CMD", "pixelzx", "version"]
+      test: ["CMD", "/usr/local/bin/pixelzx", "version"]
       interval: 30s
       timeout: 10s
       retries: 3
