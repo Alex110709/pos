@@ -47,6 +47,7 @@ PIXELZX 토큰을 네이티브 토큰으로 사용하며, 높은 성능과 낮�
 		commands.GovernanceCmd(),
 		commands.AccountCmd(),
 		commands.ConfigCmd(),
+		commands.AdminCmd(),
 		commands.VersionCmd(),
 	)
 

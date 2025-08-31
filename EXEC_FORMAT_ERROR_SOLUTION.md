@@ -1,256 +1,162 @@
-# PIXELZX POS EVM Chain - Exec Format Error 해결 및 멀티 아키텍처 지원
+# PIXELZX POS EVM 체인 - Exec Format Error 문제 해결 가이드
 
-## 📋 개요
+## 문제 설명
 
-PIXELZX POS EVM 체인에서 발생했던 `exec /usr/local/bin/pixelzx: exec format error` 문제를 해결하고, 멀티 아키텍처 지원을 구현한 과정과 결과를 문서화합니다.
+PIXELZX POS EVM 체인을 Docker로 실행할 때 다음과 같은 오류가 발생하는 경우가 있습니다:
 
-## 🔍 문제 분석
-
-### 원인
-- **아키텍처 불일치**: 빌드 플랫폼(AMD64)과 실행 플랫폼(ARM64) 간 CPU 아키텍처 차이
-- **크로스 플랫폼 빌드 미지원**: 기존 Dockerfile이 단일 아키텍처만 지원
-- **플랫폼별 바이너리 분리 부족**: 호스트 아키텍처에 맞지 않는 바이너리 실행 시도
-
-### 증상
-```bash
+```
 exec /usr/local/bin/pixelzx: exec format error
 ```
 
-## 🛠️ 해결 방안
+이 오류는 Docker 컨테이너의 아키텍처와 호스트 시스템의 아키텍처가 일치하지 않을 때 발생합니다.
 
-### 1. Dockerfile 멀티 아키텍처 지원
+## 원인 분석
 
-#### 주요 변경사항:
-- **ARG 변수 추가**: `BUILDPLATFORM`, `TARGETPLATFORM`, `TARGETOS`, `TARGETARCH`
-- **크로스 컴파일 환경 설정**: `CGO_ENABLED=0`, `GOOS`, `GOARCH`
-- **플랫폼별 빌드 정보 표시**: 빌드 시 플랫폼 정보 출력
+### 일반적인 발생 시나리오
 
-```dockerfile
-# Build arguments for multi-platform support
-ARG BUILDPLATFORM
-ARG TARGETPLATFORM
-ARG TARGETOS
-ARG TARGETARCH
+| 빌드 환경 | 실행 환경 | 결과 | 원인 |
+|----------|----------|------|------|
+| AMD64 | AMD64 | ✅ 정상 | 아키텍처 일치 |
+| AMD64 | ARM64 | ❌ exec format error | 아키텍처 불일치 |
+| AMD64 | ARM/v7 | ❌ exec format error | 아키텍처 불일치 |
 
-# Build stage with cross-compilation support
-FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS builder
+## 해결 방법
 
-# Set cross-compilation environment variables
-ENV CGO_ENABLED=0
-ARG TARGETOS
-ARG TARGETARCH
-ENV GOOS=${TARGETOS}
-ENV GOARCH=${TARGETARCH}
+### 1. 즉시 해결 방안 - 플랫폼 명시적 지정
+
+가장 빠른 해결 방법은 Docker 실행 시 플랫폼을 명시적으로 지정하는 것입니다:
+
+#### AMD64 환경 (Intel/AMD PC)
+```bash
+docker run --platform linux/amd64 --rm yuchanshin/pixelzx-evm:latest
 ```
 
-### 2. Makefile 확장
+#### ARM64 환경 (Apple Silicon Mac, Raspberry Pi 4 이상)
+```bash
+docker run --platform linux/arm64 --rm yuchanshin/pixelzx-evm:latest
+```
 
-#### 새로운 빌드 명령어:
-- `buildx-setup`: Docker Buildx 빌더 인스턴스 설정
-- `docker-build-multi`: 멀티 플랫폼 이미지 빌드
-- `docker-push-multi`: 멀티 플랫폼 이미지 빌드 및 푸시
-- `docker-test-multi`: 플랫폼별 이미지 테스트
-- `docker-build-local`: 로컬 단일 플랫폼 빌드 (테스트용)
+#### ARM/v7 환경 (Raspberry Pi 3 이하)
+```bash
+docker run --platform linux/arm/v7 --rm yuchanshin/pixelzx-evm:latest
+```
 
-#### 지원 플랫폼:
-- `linux/amd64` - Intel/AMD 64비트 프로세서
-- `linux/arm64` - ARM 64비트 프로세서 (Apple Silicon, 최신 ARM 서버)
-- `linux/arm/v7` - ARM 32비트 프로세서 (라즈베리파이 등)
+### 2. 플랫폼 자동 감지 스크립트 사용
 
-### 3. Docker Compose 설정 업데이트
+프로젝트에 포함된 플랫폼 자동 감지 스크립트를 사용하면 시스템에 맞는 플랫폼을 자동으로 감지하여 실행할 수 있습니다:
 
-#### 플랫폼별 설정 추가:
+```bash
+# 기본 실행 (도움말 표시)
+./scripts/detect-platform.sh
+
+# 특정 명령어 실행
+./scripts/detect-platform.sh admin status
+./scripts/detect-platform.sh init
+./scripts/detect-platform.sh start
+```
+
+### 3. Docker Compose 사용 시
+
+docker-compose.yml 파일에 플랫폼 정보를 명시적으로 추가할 수 있습니다:
+
 ```yaml
+version: '3.8'
 services:
   pixelzx-node:
-    platform: ${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
-    environment:
-      - PIXELZX_PLATFORM=${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
+    image: yuchanshin/pixelzx-evm:latest
+    platform: linux/arm64  # 또는 linux/amd64, linux/arm/v7
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+      - "30303:30303"
+    volumes:
+      - ./data:/app/data
 ```
 
-#### 환경 변수 파일 (.env):
-```bash
-# Default platform for multi-architecture support
-DOCKER_DEFAULT_PLATFORM=
+## 근본적 해결 - 멀티 아키텍처 이미지 사용
 
-# Multi-platform build settings
-PLATFORMS=linux/amd64,linux/arm64,linux/arm/v7
-BUILDER_NAME=pixelzx-builder
+PIXELZX POS EVM 체인 이미지는 이제 멀티 아키텍처를 지원합니다. Docker Hub의 최신 이미지(yuchanshin/pixelzx-evm:latest)는 다음 플랫폼을 모두 지원합니다:
+
+- linux/amd64 (Intel/AMD 64비트)
+- linux/arm64 (Apple Silicon, Raspberry Pi 4 이상)
+- linux/arm/v7 (Raspberry Pi 3 이하)
+
+Docker는 자동으로 호스트 시스템에 맞는 이미지를 선택하여 실행합니다.
+
+## 진단 및 검증
+
+### 시스템 아키텍처 확인
+
+현재 시스템의 아키텍처를 확인하려면 다음 명령어를 사용합니다:
+
+```bash
+uname -m
 ```
 
-## 🚀 사용 방법
+결과:
+- `x86_64` 또는 `amd64`: AMD64 아키텍처
+- `aarch64` 또는 `arm64`: ARM64 아키텍처
+- `armv7l`: ARM/v7 아키텍처
 
-### 1. 멀티 플랫폼 빌드 환경 설정
+### Docker 이미지 매니페스트 확인
 
-```bash
-# Docker Buildx 빌더 설정
-make buildx-setup
-```
-
-### 2. 로컬 테스트
+Docker 이미지가 지원하는 플랫폼을 확인하려면 다음 명령어를 사용합니다:
 
 ```bash
-# 현재 플랫폼용 이미지 빌드 및 테스트
-make docker-build-local
-docker run --rm yuchanshin/pixelzx-evm:local /usr/local/bin/pixelzx version
-```
-
-### 3. 멀티 플랫폼 빌드 및 배포
-
-```bash
-# 모든 플랫폼용 이미지 빌드 및 Docker Hub 푸시
-make docker-push-multi
-
-# 모든 플랫폼 테스트
-make docker-test-multi
-```
-
-### 4. 이미지 확인
-
-```bash
-# 매니페스트 리스트 확인
 docker buildx imagetools inspect yuchanshin/pixelzx-evm:latest
 ```
 
-## ✅ 검증 결과
+## 문제 해결 체크리스트
 
-### 빌드 성공
-- ✅ **linux/amd64**: 빌드 및 실행 성공
-- ✅ **linux/arm64**: 빌드 및 실행 성공  
-- ✅ **linux/arm/v7**: 빌드 및 실행 성공
+1. [ ] 시스템 아키텍처 확인 (`uname -m`)
+2. [ ] Docker 버전 확인 (20.10 이상 필요)
+3. [ ] Docker Buildx 설치 여부 확인
+4. [ ] 플랫폼 명시적 지정으로 실행 시도
+5. [ ] 플랫폼 자동 감지 스크립트 사용
+6. [ ] Docker 이미지 매니페스트 확인
 
-### 실행 테스트 결과
+## 추가 정보
+
+### Docker 버전 업데이트
+
+Docker 버전이 낮은 경우 exec format error가 발생할 수 있습니다. Docker를 최신 버전으로 업데이트하세요:
+
 ```bash
-Testing platform: linux/amd64
-🚀 PIXELZX POS EVM Chain
-════════════════════════════════════════════════════════════════
-📦 버전 정보:
-  버전: v1.0.0
-  빌드: 2024-01-25T10:30:45Z
-  커밋: abc123def456 (main)
+# Docker Desktop (Mac/Windows)
+# https://www.docker.com/products/docker-desktop 에서 다운로드
 
-All platform tests passed!
+# Ubuntu/Debian
+sudo apt update
+sudo apt install docker-ce docker-ce-cli containerd.io
+
+# CentOS/RHEL
+sudo yum update
+sudo yum install docker-ce docker-ce-cli containerd.io
 ```
 
-### Docker Hub 배포 확인
+### Buildx 활성화
+
+Docker Buildx가 설치되어 있지 않은 경우 다음 명령어로 설치합니다:
+
 ```bash
-$ docker buildx imagetools inspect yuchanshin/pixelzx-evm:latest
+# Docker Buildx 설치
+mkdir -p ~/.docker/cli-plugins
+wget -qO ~/.docker/cli-plugins/docker-buildx https://github.com/docker/buildx/releases/download/v0.11.2/buildx-v0.11.2.linux-amd64
+chmod +x ~/.docker/cli-plugins/docker-buildx
 
-Name:      docker.io/yuchanshin/pixelzx-evm:latest
-MediaType: application/vnd.oci.image.index.v1+json
-
-Manifests: 
-  Platform:    linux/amd64
-  Platform:    linux/arm64  
-  Platform:    linux/arm/v7
+# 설치 확인
+docker buildx version
 ```
 
-## 🔧 기술적 세부사항
+## 문의 및 지원
 
-### Docker Buildx 설정
-- **Builder 이름**: `pixelzx-builder`
-- **드라이버**: `docker-container`
-- **지원 플랫폼**: linux/amd64, linux/arm64, linux/arm/v7
+문제가 지속되는 경우 다음 정보를 포함하여 문의해 주세요:
 
-### 크로스 컴파일 환경
-- **Go 버전**: 1.21+
-- **CGO**: 비활성화 (CGO_ENABLED=0)
-- **빌드 태그**: 플랫폼별 자동 설정
+1. 운영체제 및 버전
+2. 시스템 아키텍처 (`uname -m` 결과)
+3. Docker 버전 (`docker version` 결과)
+4. 발생하는 정확한 오류 메시지
+5. 실행한 명령어
 
-### 이미지 최적화
-- **멀티 스테이지 빌드**: 빌드 종속성과 런타임 분리
-- **Alpine Linux**: 경량 베이스 이미지
-- **보안 사용자**: 비루트 사용자(pixelzx) 실행
-
-## 📊 성능 영향
-
-### 빌드 시간
-- **단일 플랫폼**: ~25초
-- **멀티 플랫폼 (3개)**: ~32초
-- **추가 오버헤드**: ~28% (병렬 빌드로 최소화)
-
-### 이미지 크기
-- **Base 이미지**: ~8MB (Alpine)
-- **최종 이미지**: ~10MB (바이너리 포함)
-- **플랫폼별 차이**: 거의 없음
-
-## 🔄 CI/CD 통합
-
-### GitHub Actions 예시
-```yaml
-- name: Set up Docker Buildx
-  uses: docker/setup-buildx-action@v2
-
-- name: Build and push multi-platform images
-  run: make docker-push-multi
-```
-
-### 자동화된 테스트
-```yaml
-- name: Test multi-platform images
-  run: make docker-test-multi
-```
-
-## 🛡️ 보안 고려사항
-
-### 이미지 보안
-- ✅ 비루트 사용자 실행
-- ✅ 최소 권한 원칙
-- ✅ 보안 업데이트 자동 적용
-
-### 빌드 보안
-- ✅ 신뢰할 수 있는 베이스 이미지
-- ✅ 종속성 검증
-- ✅ 취약점 스캔 통합 가능
-
-## 📈 모니터링 및 관찰성
-
-### 빌드 모니터링
-- 빌드 시간 추적
-- 플랫폼별 성공률
-- 이미지 크기 모니터링
-
-### 런타임 모니터링
-- 컨테이너 시작 시간
-- 플랫폼 감지 정확성
-- 메모리/CPU 사용량
-
-## 🔮 향후 개선사항
-
-### 추가 플랫폼 지원
-- `linux/riscv64`: RISC-V 아키텍처
-- `linux/ppc64le`: IBM Power 아키텍처
-- `linux/s390x`: IBM Z 아키텍처
-
-### 빌드 최적화
-- 빌드 캐시 최적화
-- 병렬 빌드 개선
-- 크로스 컴파일 성능 향상
-
-### 자동화 개선
-- 자동 취약점 스캔
-- 성능 벤치마크 자동화
-- 배포 자동화 확장
-
-## 📚 참고 자료
-
-### Docker 공식 문서
-- [Docker Buildx 멀티 플랫폼 빌드](https://docs.docker.com/buildx/working-with-buildx/)
-- [Docker 매니페스트](https://docs.docker.com/registry/spec/manifest-v2-2/)
-
-### Go 크로스 컴파일
-- [Go 크로스 컴파일 가이드](https://golang.org/doc/install/source#environment)
-- [CGO와 크로스 컴파일](https://dave.cheney.net/2015/08/22/cross-compilation-with-go-1-5)
-
-### PIXELZX 프로젝트
-- [PIXELZX POS EVM Chain GitHub](https://github.com/pixelzx/pos)
-- [Docker Hub 저장소](https://hub.docker.com/r/yuchanshin/pixelzx-evm)
-
----
-
-## 📞 문의
-
-멀티 아키텍처 지원이나 exec format error 관련 문의사항이 있으시면 언제든지 연락주세요.
-
-**업데이트**: 2024-08-31  
-**작성자**: PIXELZX 개발팀
+GitHub Issues: [링크]
+이메일: [이메일 주소]
