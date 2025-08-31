@@ -46,6 +46,9 @@ func AdminCmd() *cobra.Command {
 		adminRestoreCmd(),
 		adminConfigCmd(),
 		adminDebugCmd(),
+		adminPeerCmd(),
+		adminMetricsCmd(),    // 새로 추가
+		adminSnapshotCmd(),   // 새로 추가
 	)
 
 	return cmd
