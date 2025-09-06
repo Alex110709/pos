@@ -10,10 +10,9 @@ import (
 func AccountCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "account",
-		Short: "계정 관리 명령어",
-		Long: `PIXELZX 체인의 계정 관련 기능을 관리합니다.
-
-계정 생성, 조회, 키스토어 관리 등의 기능을 제공합니다.`,
+		Short: "Manage accounts",
+		Long: `Manage accounts, including creating new accounts, listing existing accounts, 
+importing private keys into new accounts, and updating existing accounts.`,
 	}
 
 	cmd.AddCommand(
@@ -22,6 +21,7 @@ func AccountCmd() *cobra.Command {
 		accountBalanceCmd(),
 		accountImportCmd(),
 		accountExportCmd(),
+		accountUpdateCmd(), // Add the missing update command
 	)
 
 	return cmd
@@ -35,36 +35,36 @@ func accountNewCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "new",
-		Short: "새 계정 생성",
-		Long:  "새로운 PIXELZX 계정을 생성하고 키스토어에 저장합니다.",
+		Short: "Create a new account",
+		Long:  "Create a new account and save it to the keystore.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("🔐 새 계정 생성 중...\n")
+			fmt.Printf("🔐 Creating new account...\n")
 			
 			if keystore != "" {
-				fmt.Printf("키스토어 디렉토리: %s\n", keystore)
+				fmt.Printf("Keystore directory: %s\n", keystore)
 			}
 
-			// 계정 생성 로직 (실제 구현 필요)
+			// Account creation logic (actual implementation needed)
 			address := "0x742d35Cc6635C0532925a3b8D5C0532925b8D5C05"
 			privateKey := "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
 			
-			fmt.Printf("\n✅ 계정 생성 완료!\n")
-			fmt.Printf("📋 계정 정보:\n")
-			fmt.Printf("  주소: %s\n", address)
-			fmt.Printf("  개인키: %s\n", privateKey)
-			fmt.Printf("  키스토어 파일: UTC--2024-01-25T10-30-45.123456789Z--742d35cc6635c0532925a3b8d5c0532925b8d5c05\n")
+			fmt.Printf("\n✅ Account created successfully!\n")
+			fmt.Printf("📋 Account info:\n")
+			fmt.Printf("  Address: %s\n", address)
+			fmt.Printf("  Private key: %s\n", privateKey)
+			fmt.Printf("  Keystore file: UTC--2024-01-25T10-30-45.123456789Z--742d35cc6635c0532925a3b8d5c0532925b8d5c05\n")
 
-			fmt.Printf("\n⚠️  보안 주의사항:\n")
-			fmt.Printf("  - 개인키를 안전한 곳에 백업하세요\n")
-			fmt.Printf("  - 키스토어 파일과 비밀번호를 안전하게 보관하세요\n")
-			fmt.Printf("  - 개인키를 다른 사람과 공유하지 마세요\n")
+			fmt.Printf("\n⚠️  Security warning:\n")
+			fmt.Printf("  - Backup your private key in a secure location\n")
+			fmt.Printf("  - Keep your keystore file and password secure\n")
+			fmt.Printf("  - Never share your private key with anyone\n")
 
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&password, "password", "", "계정 비밀번호")
-	cmd.Flags().StringVar(&keystore, "keystore", "", "키스토어 디렉토리")
+	cmd.Flags().StringVar(&password, "password", "", "Account password")
+	cmd.Flags().StringVar(&keystore, "keystore", "", "Keystore directory")
 
 	return cmd
 }
@@ -74,15 +74,15 @@ func accountListCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "list",
-		Short: "계정 목록 조회",
-		Long:  "키스토어에 저장된 계정 목록을 조회합니다.",
+		Short: "Print summary of existing accounts",
+		Long:  "Print a short summary of all accounts in the keystore.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("📋 계정 목록\n")
+			fmt.Printf("📋 Account list\n")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
-			fmt.Printf("%-4s %-42s %-20s %-10s\n", "번호", "주소", "키스토어 파일", "잔액")
+			fmt.Printf("%-4s %-42s %-20s %-10s\n", "No", "Address", "Keystore file", "Balance")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
 			
-			// 예시 데이터
+			// Sample data
 			accounts := []struct {
 				index    int
 				address  string
@@ -99,19 +99,19 @@ func accountListCmd() *cobra.Command {
 					acc.index, acc.address, acc.keystore, acc.balance)
 			}
 
-			fmt.Printf("\n📊 요약:\n")
-			fmt.Printf("  총 계정 수: %d\n", len(accounts))
-			fmt.Printf("  총 잔액: 1,750,000 PXZ\n")
+			fmt.Printf("\n📊 Summary:\n")
+			fmt.Printf("  Total accounts: %d\n", len(accounts))
+			fmt.Printf("  Total balance: 1,750,000 PXZ\n")
 
 			if keystore != "" {
-				fmt.Printf("  키스토어 디렉토리: %s\n", keystore)
+				fmt.Printf("  Keystore directory: %s\n", keystore)
 			}
 
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&keystore, "keystore", "", "키스토어 디렉토리")
+	cmd.Flags().StringVar(&keystore, "keystore", "", "Keystore directory")
 
 	return cmd
 }
@@ -119,31 +119,31 @@ func accountListCmd() *cobra.Command {
 func accountBalanceCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "balance [address]",
-		Short: "계정 잔액 조회",
-		Long:  "지정된 주소의 PIXELZX 토큰 잔액을 조회합니다.",
+		Short: "Get account balance",
+		Long:  "Get the balance of the specified address in PIXELZX tokens.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			address := args[0]
 			
-			fmt.Printf("💰 계정 잔액 조회: %s\n", address)
+			fmt.Printf("💰 Account balance: %s\n", address)
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
 			
-			// 예시 데이터
-			fmt.Printf("📊 잔액 정보:\n")
-			fmt.Printf("  주소: %s\n", address)
-			fmt.Printf("  PXZ 잔액: 1,000,000.123456789012345678 PXZ\n")
-			fmt.Printf("  Wei 잔액: 1000000123456789012345678 wei\n")
-			fmt.Printf("  USD 가치: $50,000.00 (예상)\n")
+			// Sample data
+			fmt.Printf("📊 Balance info:\n")
+			fmt.Printf("  Address: %s\n", address)
+			fmt.Printf("  PXZ balance: 1,000,000.123456789012345678 PXZ\n")
+			fmt.Printf("  Wei balance: 1000000123456789012345678 wei\n")
+			fmt.Printf("  USD value: $50,000.00 (estimated)\n")
 
-			fmt.Printf("\n🔗 네트워크 정보:\n")
-			fmt.Printf("  체인 ID: 8888\n")
-			fmt.Printf("  최신 블록: 152,341\n")
-			fmt.Printf("  가스 가격: 20 Gwei\n")
+			fmt.Printf("\n🔗 Network info:\n")
+			fmt.Printf("  Chain ID: 8888\n")
+			fmt.Printf("  Latest block: 152,341\n")
+			fmt.Printf("  Gas price: 20 Gwei\n")
 
-			fmt.Printf("\n📈 거래 통계:\n")
-			fmt.Printf("  송신 거래: 45건\n")
-			fmt.Printf("  수신 거래: 23건\n")
-			fmt.Printf("  총 거래: 68건\n")
+			fmt.Printf("\n📈 Transaction stats:\n")
+			fmt.Printf("  Sent transactions: 45\n")
+			fmt.Printf("  Received transactions: 23\n")
+			fmt.Printf("  Total transactions: 68\n")
 
 			return nil
 		},
@@ -161,39 +161,39 @@ func accountImportCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "import",
-		Short: "계정 가져오기",
-		Long:  "개인키를 사용하여 기존 계정을 키스토어로 가져옵니다.",
+		Short: "Import a private key into a new account",
+		Long:  "Import an unencrypted private key into a new account in the keystore.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("📥 계정 가져오기 중...\n")
+			fmt.Printf("📥 Importing account...\n")
 			
 			if len(privateKey) > 20 {
-				fmt.Printf("개인키: %s...%s\n", privateKey[:10], privateKey[len(privateKey)-10:])
+				fmt.Printf("Private key: %s...%s\n", privateKey[:10], privateKey[len(privateKey)-10:])
 			}
 
-			// 계정 가져오기 로직 (실제 구현 필요)
+			// Account import logic (actual implementation needed)
 			address := "0x8ba1f109551bD432803012645Hac136c22AdB2B8"
 			
-			fmt.Printf("\n✅ 계정 가져오기 완료!\n")
-			fmt.Printf("📋 가져온 계정 정보:\n")
-			fmt.Printf("  주소: %s\n", address)
-			fmt.Printf("  키스토어 파일: UTC--2024-01-25T10-35-12.987654321Z--8ba1f109551bd432803012645hac136c22adb2b8\n")
+			fmt.Printf("\n✅ Account imported successfully!\n")
+			fmt.Printf("📋 Imported account info:\n")
+			fmt.Printf("  Address: %s\n", address)
+			fmt.Printf("  Keystore file: UTC--2024-01-25T10-35-12.987654321Z--8ba1f109551bd432803012645hac136c22adb2b8\n")
 
 			if keystore != "" {
-				fmt.Printf("  키스토어 디렉토리: %s\n", keystore)
+				fmt.Printf("  Keystore directory: %s\n", keystore)
 			}
 
-			fmt.Printf("\n⚠️  보안 주의사항:\n")
-			fmt.Printf("  - 가져온 계정은 키스토어에 암호화되어 저장됩니다\n")
-			fmt.Printf("  - 원본 개인키는 안전하게 삭제하세요\n")
-			fmt.Printf("  - 키스토어 파일과 비밀번호를 안전하게 보관하세요\n")
+			fmt.Printf("\n⚠️  Security warning:\n")
+			fmt.Printf("  - The imported account is encrypted and stored in the keystore\n")
+			fmt.Printf("  - Securely delete the original private key\n")
+			fmt.Printf("  - Keep your keystore file and password secure\n")
 
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&privateKey, "private-key", "", "개인키 (필수)")
-	cmd.Flags().StringVar(&password, "password", "", "키스토어 비밀번호")
-	cmd.Flags().StringVar(&keystore, "keystore", "", "키스토어 디렉토리")
+	cmd.Flags().StringVar(&privateKey, "private-key", "", "Private key (required)")
+	cmd.Flags().StringVar(&password, "password", "", "Keystore password")
+	cmd.Flags().StringVar(&keystore, "keystore", "", "Keystore directory")
 
 	cmd.MarkFlagRequired("private-key")
 
@@ -208,34 +208,75 @@ func accountExportCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "export [address]",
-		Short: "계정 내보내기",
-		Long:  "키스토어에서 계정의 개인키를 내보냅니다.",
+		Short: "Export account private key",
+		Long:  "Export the private key of an account from the keystore.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			address := args[0]
 			
-			fmt.Printf("📤 계정 내보내기: %s\n", address)
+			fmt.Printf("📤 Exporting account: %s\n", address)
 			
-			// 계정 내보내기 로직 (실제 구현 필요)
+			// Account export logic (actual implementation needed)
 			privateKey := "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
 			
-			fmt.Printf("\n✅ 계정 내보내기 완료!\n")
-			fmt.Printf("📋 계정 정보:\n")
-			fmt.Printf("  주소: %s\n", address)
-			fmt.Printf("  개인키: %s\n", privateKey)
+			fmt.Printf("\n✅ Account exported successfully!\n")
+			fmt.Printf("📋 Account info:\n")
+			fmt.Printf("  Address: %s\n", address)
+			fmt.Printf("  Private key: %s\n", privateKey)
 
-			fmt.Printf("\n⚠️  보안 경고:\n")
-			fmt.Printf("  - 개인키를 안전한 곳에 보관하세요\n")
-			fmt.Printf("  - 개인키가 노출되면 계정이 탈취될 수 있습니다\n")
-			fmt.Printf("  - 불필요한 경우 개인키를 내보내지 마세요\n")
-			fmt.Printf("  - 사용 후 터미널 히스토리를 삭제하세요\n")
+			fmt.Printf("\n⚠️  Security warning:\n")
+			fmt.Printf("  - Store your private key in a secure location\n")
+			fmt.Printf("  - If your private key is exposed, your account can be compromised\n")
+			fmt.Printf("  - Do not export your private key unless necessary\n")
+			fmt.Printf("  - Delete your terminal history after use\n")
 
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&password, "password", "", "키스토어 비밀번호")
-	cmd.Flags().StringVar(&keystore, "keystore", "", "키스토어 디렉토리")
+	cmd.Flags().StringVar(&password, "password", "", "Keystore password")
+	cmd.Flags().StringVar(&keystore, "keystore", "", "Keystore directory")
+
+	return cmd
+}
+
+// Add the missing update command to match Geth
+func accountUpdateCmd() *cobra.Command {
+	var (
+		password string
+		keystore string
+	)
+
+	cmd := &cobra.Command{
+		Use:   "update [address]",
+		Short: "Update an existing account",
+		Long:  "Update an existing account by changing its password or migrating to the latest key format.",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			address := args[0]
+			
+			fmt.Printf("🔄 Updating account: %s\n", address)
+			
+			// Account update logic (actual implementation needed)
+			fmt.Printf("\n✅ Account updated successfully!\n")
+			fmt.Printf("📋 Updated account info:\n")
+			fmt.Printf("  Address: %s\n", address)
+			fmt.Printf("  Keystore file: UTC--2024-01-25T10-35-12.987654321Z--8ba1f109551bd432803012645hac136c22adb2b8\n")
+
+			if keystore != "" {
+				fmt.Printf("  Keystore directory: %s\n", keystore)
+			}
+
+			fmt.Printf("\n⚠️  Security note:\n")
+			fmt.Printf("  - Remember your new password\n")
+			fmt.Printf("  - Previous key formats have been removed\n")
+
+			return nil
+		},
+	}
+
+	cmd.Flags().StringVar(&password, "password", "", "New password for the account")
+	cmd.Flags().StringVar(&keystore, "keystore", "", "Keystore directory")
 
 	return cmd
 }

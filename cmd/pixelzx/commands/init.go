@@ -102,10 +102,10 @@ func InitCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "init [network-name]",
-		Short: "PIXELZX 체인 초기화",
-		Long: `PIXELZX POS EVM 체인을 초기화합니다.
+		Short: "Bootstrap and initialize a new genesis block",
+		Long: `Initialize the PIXELZX POS EVM chain.
 
-제네시스 블록을 생성하고 초기 설정을 구성합니다.`,
+Create and configure the genesis block.`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
@@ -118,9 +118,9 @@ func InitCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&genesisPath, "genesis", "", "제네시스 파일 경로")
-	cmd.Flags().Uint64Var(&chainID, "chain-id", 8888, "체인 ID")
-	cmd.Flags().StringVar(&networkName, "network", "pixelzx-pos", "네트워크 이름")
+	cmd.Flags().StringVar(&genesisPath, "genesis", "", "Path to genesis file")
+	cmd.Flags().Uint64Var(&chainID, "chain-id", 8888, "Chain ID")
+	cmd.Flags().StringVar(&networkName, "network", "pixelzx-pos", "Network name")
 
 	return cmd
 }

@@ -10,35 +10,32 @@ import (
 func AdminCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "admin",
-		Short: "노드 관리자 명령어",
-		Long: `PIXELZX 노드의 고급 관리 기능을 제공합니다.
+		Short: "Admin node commands",
+		Long: `Provides advanced administration features for the PIXELZX node.
 
-노드 상태 모니터링, 데이터 백업/복원, 설정 관리, 디버깅 도구 등
-시스템 관리자를 위한 종합적인 관리 기능을 제공합니다.
-
-주요 기능:
-  - 노드 상태 모니터링 및 진단
-  - 데이터베이스 백업 및 복원
-  - 설정 파일 관리 및 검증
-  - 디버깅 및 로그 분석 도구
-  - 시스템 리셋 및 초기화`,
-		Example: `  # 노드 상태 확인
+Comprehensive management features for system administrators including:
+  - Node status monitoring and diagnostics
+  - Database backup and restore
+  - Configuration file management and validation
+  - Debugging and log analysis tools
+  - System reset and initialization`,
+		Example: `  # Check node status
   pixelzx admin status node
 
-  # 네트워크 상태 확인
+  # Check network status
   pixelzx admin status network
 
-  # 데이터베이스 백업
+  # Backup database
   pixelzx admin backup database
 
-  # 설정 파일 확인
+  # Show config file
   pixelzx admin config show
 
-  # 도움말 확인
+  # Show help
   pixelzx admin --help`,
 	}
 
-	// 하위 명령어 추가
+	// Add subcommands
 	cmd.AddCommand(
 		adminStatusCmd(),
 		adminResetCmd(),
@@ -47,22 +44,22 @@ func AdminCmd() *cobra.Command {
 		adminConfigCmd(),
 		adminDebugCmd(),
 		adminPeerCmd(),
-		adminMetricsCmd(),    // 새로 추가
-		adminSnapshotCmd(),   // 새로 추가
+		adminMetricsCmd(),    // newly added
+		adminSnapshotCmd(),   // newly added
 	)
 
 	return cmd
 }
 
-// adminStatusCmd 노드 상태 확인 명령어 그룹
+// adminStatusCmd node status check command group
 func adminStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status",
-		Short: "노드 상태 모니터링",
-		Long: `PIXELZX 노드의 다양한 상태 정보를 조회합니다.
+		Short: "Node status monitoring",
+		Long: `Query various status information of the PIXELZX node.
 
-노드 기본 정보, 네트워크 연결 상태, 검증자 정보, 스테이킹 상태 등을
-실시간으로 모니터링할 수 있습니다.`,
+Real-time monitoring of node basic information, network connection status, 
+validator information, staking status, etc.`,
 	}
 
 	cmd.AddCommand(
@@ -75,43 +72,43 @@ func adminStatusCmd() *cobra.Command {
 	return cmd
 }
 
-// adminStatusNodeCmd 노드 기본 상태 확인
+// adminStatusNodeCmd node basic status check
 func adminStatusNodeCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "node",
-		Short: "노드 기본 정보 및 상태",
-		Long:  "PIXELZX 노드의 기본 정보와 현재 상태를 표시합니다.",
+		Short: "Node basic information and status",
+		Long:  "Display basic information and current status of the PIXELZX node.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("🟢 PIXELZX 노드 상태\n")
+			fmt.Printf("🟢 PIXELZX Node Status\n")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
 			
-			// 기본 노드 정보
-			fmt.Printf("📊 기본 정보:\n")
-			fmt.Printf("  노드 ID: pixelzx-node-001\n")
-			fmt.Printf("  버전: v1.0.0\n")
-			fmt.Printf("  체인 ID: 8888\n")
-			fmt.Printf("  네트워크: PIXELZX Mainnet\n")
-			fmt.Printf("  가동 시간: 2일 15시간 32분\n")
+			// Basic node information
+			fmt.Printf("📊 Basic Info:\n")
+			fmt.Printf("  Node ID: pixelzx-node-001\n")
+			fmt.Printf("  Version: v1.0.0\n")
+			fmt.Printf("  Chain ID: 8888\n")
+			fmt.Printf("  Network: PIXELZX Mainnet\n")
+			fmt.Printf("  Uptime: 2 days 15 hours 32 minutes\n")
 			
-			// 블록체인 상태
-			fmt.Printf("\n⛓️  블록체인 상태:\n")
-			fmt.Printf("  현재 블록 높이: 152,341\n")
-			fmt.Printf("  최신 블록 시간: 2024-01-25 10:30:45 UTC\n")
-			fmt.Printf("  동기화 상태: ✅ 완전 동기화\n")
-			fmt.Printf("  평균 블록 시간: 3.2초\n")
+			// Blockchain status
+			fmt.Printf("\n⛓️  Blockchain Status:\n")
+			fmt.Printf("  Current block height: 152,341\n")
+			fmt.Printf("  Latest block time: 2024-01-25 10:30:45 UTC\n")
+			fmt.Printf("  Sync status: ✅ Fully synced\n")
+			fmt.Printf("  Average block time: 3.2 seconds\n")
 			
-			// 시스템 리소스
-			fmt.Printf("\n💻 시스템 리소스:\n")
-			fmt.Printf("  CPU 사용률: 12.5%%\n")
-			fmt.Printf("  메모리 사용률: 45.2%% (2.1GB / 4.6GB)\n")
-			fmt.Printf("  디스크 사용률: 23.7%% (120GB / 500GB)\n")
+			// System resources
+			fmt.Printf("\n💻 System Resources:\n")
+			fmt.Printf("  CPU usage: 12.5%%\n")
+			fmt.Printf("  Memory usage: 45.2%% (2.1GB / 4.6GB)\n")
+			fmt.Printf("  Disk usage: 23.7%% (120GB / 500GB)\n")
 			
-			// 네트워크 정보
-			fmt.Printf("\n🌐 네트워크 정보:\n")
-			fmt.Printf("  연결된 피어: 24개\n")
-			fmt.Printf("  P2P 포트: 30303\n")
-			fmt.Printf("  JSON-RPC 포트: 8545\n")
-			fmt.Printf("  WebSocket 포트: 8546\n")
+			// Network information
+			fmt.Printf("\n🌐 Network Info:\n")
+			fmt.Printf("  Connected peers: 24\n")
+			fmt.Printf("  P2P port: 30303\n")
+			fmt.Printf("  JSON-RPC port: 8545\n")
+			fmt.Printf("  WebSocket port: 8546\n")
 
 			return nil
 		},
@@ -120,28 +117,28 @@ func adminStatusNodeCmd() *cobra.Command {
 	return cmd
 }
 
-// adminStatusNetworkCmd 네트워크 상태 확인
+// adminStatusNetworkCmd network status check
 func adminStatusNetworkCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "network",
-		Short: "P2P 네트워크 연결 상태",
-		Long:  "P2P 네트워크 연결 상태와 피어 정보를 표시합니다.",
+		Short: "P2P network connection status",
+		Long:  "Display P2P network connection status and peer information.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("🌐 네트워크 상태\n")
+			fmt.Printf("🌐 Network Status\n")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
 			
-			// 네트워크 개요
-			fmt.Printf("📊 네트워크 개요:\n")
-			fmt.Printf("  네트워크 ID: pixelzx-mainnet\n")
-			fmt.Printf("  P2P 활성화: ✅ 활성\n")
-			fmt.Printf("  연결된 피어: 24개\n")
-			fmt.Printf("  최대 피어: 50개\n")
-			fmt.Printf("  수신 연결: 12개\n")
-			fmt.Printf("  송신 연결: 12개\n")
+			// Network overview
+			fmt.Printf("📊 Network Overview:\n")
+			fmt.Printf("  Network ID: pixelzx-mainnet\n")
+			fmt.Printf("  P2P enabled: ✅ Active\n")
+			fmt.Printf("  Connected peers: 24\n")
+			fmt.Printf("  Max peers: 50\n")
+			fmt.Printf("  Inbound connections: 12\n")
+			fmt.Printf("  Outbound connections: 12\n")
 			
-			// 피어 목록 (상위 5개)
-			fmt.Printf("\n👥 연결된 피어 (상위 5개):\n")
-			fmt.Printf("%-4s %-45s %-15s %-10s %-8s\n", "번호", "피어 ID", "IP 주소", "방향", "지연시간")
+			// Peer list (top 5)
+			fmt.Printf("\n👥 Connected Peers (Top 5):\n")
+			fmt.Printf("%-4s %-45s %-15s %-10s %-8s\n", "No", "Peer ID", "IP Address", "Direction", "Latency")
 			fmt.Printf("────────────────────────────────────────────────────────────────\n")
 			
 			peers := []struct {
@@ -151,11 +148,11 @@ func adminStatusNetworkCmd() *cobra.Command {
 				direction string
 				latency   string
 			}{
-				{1, "16Uiu2HAm9Q8R7nxZ8GWqK9vK1b2X3h4mL5nF8dY3...", "192.168.1.100", "수신", "45ms"},
-				{2, "16Uiu2HAm5P7M6nxY9FVqH8vJ1a2W2g3hK4mE7cX2...", "203.123.45.67", "송신", "120ms"},
-				{3, "16Uiu2HAm8N6L5mxX8EVqG7vI0z1V1f2gJ3lD6bW1...", "151.101.1.140", "수신", "89ms"},
-				{4, "16Uiu2HAm3M5K4lxW7DUqF6vH9y0U0e1fI2kC5aV0...", "104.16.249.249", "송신", "156ms"},
-				{5, "16Uiu2HAm7L4J3kxV6CUqE5vG8x9T9d0eH1jB4aU9...", "185.199.108.153", "수신", "203ms"},
+				{1, "16Uiu2HAm9Q8R7nxZ8GWqK9vK1b2X3h4mL5nF8dY3...", "192.168.1.100", "Inbound", "45ms"},
+				{2, "16Uiu2HAm5P7M6nxY9FVqH8vJ1a2W2g3hK4mE7cX2...", "203.123.45.67", "Outbound", "120ms"},
+				{3, "16Uiu2HAm8N6L5mxX8EVqG7vI0z1V1f2gJ3lD6bW1...", "151.101.1.140", "Inbound", "89ms"},
+				{4, "16Uiu2HAm3M5K4lxW7DUqF6vH9y0U0e1fI2kC5aV0...", "104.16.249.249", "Outbound", "156ms"},
+				{5, "16Uiu2HAm7L4J3kxV6CUqE5vG8x9T9d0eH1jB4aU9...", "185.199.108.153", "Inbound", "203ms"},
 			}
 
 			for _, peer := range peers {
@@ -163,12 +160,12 @@ func adminStatusNetworkCmd() *cobra.Command {
 					peer.index, peer.peerID, peer.ipAddress, peer.direction, peer.latency)
 			}
 
-			// 네트워크 통계
-			fmt.Printf("\n📈 네트워크 통계:\n")
-			fmt.Printf("  총 수신 데이터: 2.3 GB\n")
-			fmt.Printf("  총 송신 데이터: 1.8 GB\n")
-			fmt.Printf("  평균 지연시간: 122ms\n")
-			fmt.Printf("  연결 성공률: 98.5%%\n")
+			// Network statistics
+			fmt.Printf("\n📈 Network Statistics:\n")
+			fmt.Printf("  Total received data: 2.3 GB\n")
+			fmt.Printf("  Total sent data: 1.8 GB\n")
+			fmt.Printf("  Average latency: 122ms\n")
+			fmt.Printf("  Connection success rate: 98.5%%\n")
 
 			return nil
 		},
@@ -177,41 +174,41 @@ func adminStatusNetworkCmd() *cobra.Command {
 	return cmd
 }
 
-// adminStatusValidatorsCmd 검증자 상태 확인
+// adminStatusValidatorsCmd validator status check
 func adminStatusValidatorsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "validators",
-		Short: "검증자 세트 정보",
-		Long:  "현재 검증자 세트와 검증자 관련 정보를 표시합니다.",
+		Short: "Validator set information",
+		Long:  "Display current validator set and validator-related information.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("👨‍⚖️ 검증자 상태\n")
+			fmt.Printf("👨‍⚖️ Validator Status\n")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
 			
-			// 검증자 개요
-			fmt.Printf("📊 검증자 개요:\n")
-			fmt.Printf("  총 검증자 수: 21개\n")
-			fmt.Printf("  활성 검증자: 21개\n")
-			fmt.Printf("  현재 제안자: validator-05\n")
-			fmt.Printf("  다음 제안자: validator-12\n")
-			fmt.Printf("  본인 검증자 여부: ✅ 예 (validator-03)\n")
+			// Validator overview
+			fmt.Printf("📊 Validator Overview:\n")
+			fmt.Printf("  Total validators: 21\n")
+			fmt.Printf("  Active validators: 21\n")
+			fmt.Printf("  Current proposer: validator-05\n")
+			fmt.Printf("  Next proposer: validator-12\n")
+			fmt.Printf("  Own validator: ✅ Yes (validator-03)\n")
 			
-			// 현재 에포크 정보
-			fmt.Printf("\n🕐 현재 에포크 정보:\n")
-			fmt.Printf("  에포크 번호: 1,523\n")
-			fmt.Printf("  에포크 진행률: 67%% (201/300 블록)\n")
-			fmt.Printf("  에포크 종료까지: 약 4분 57초\n")
-			fmt.Printf("  다음 검증자 세트 변경: 없음\n")
+			// Current epoch information
+			fmt.Printf("\n🕐 Current Epoch Info:\n")
+			fmt.Printf("  Epoch number: 1,523\n")
+			fmt.Printf("  Epoch progress: 67%% (201/300 blocks)\n")
+			fmt.Printf("  Time until epoch end: ~4 minutes 57 seconds\n")
+			fmt.Printf("  Next validator set change: None\n")
 
-			// 본인 검증자 상태 (검증자인 경우)
-			fmt.Printf("\n🏆 내 검증자 상태:\n")
-			fmt.Printf("  검증자 ID: validator-03\n")
-			fmt.Printf("  공개키: 0x03a7b8c9d0e1f2g3h4i5j6k7l8m9n0o1p2q3r4s5t6u7v8w9x0y1z2\n")
-			fmt.Printf("  스테이킹량: 1,000,000 PXZ\n")
-			fmt.Printf("  위임량: 5,500,000 PXZ\n")
-			fmt.Printf("  총 투표력: 6,500,000 PXZ (5.2%%)\n")
-			fmt.Printf("  검증 성공률: 99.8%%\n")
-			fmt.Printf("  누적 보상: 12,345 PXZ\n")
-			fmt.Printf("  슬래싱: 없음\n")
+			// Own validator status (if validator)
+			fmt.Printf("\n🏆 Own Validator Status:\n")
+			fmt.Printf("  Validator ID: validator-03\n")
+			fmt.Printf("  Public key: 0x03a7b8c9d0e1f2g3h4i5j6k7l8m9n0o1p2q3r4s5t6u7v8w9x0y1z2\n")
+			fmt.Printf("  Staking amount: 1,000,000 PXZ\n")
+			fmt.Printf("  Delegation amount: 5,500,000 PXZ\n")
+			fmt.Printf("  Total voting power: 6,500,000 PXZ (5.2%%)\n")
+			fmt.Printf("  Validation success rate: 99.8%%\n")
+			fmt.Printf("  Cumulative rewards: 12,345 PXZ\n")
+			fmt.Printf("  Slashing: None\n")
 
 			return nil
 		},
@@ -220,43 +217,43 @@ func adminStatusValidatorsCmd() *cobra.Command {
 	return cmd
 }
 
-// adminStatusStakingCmd 스테이킹 상태 확인
+// adminStatusStakingCmd staking status check
 func adminStatusStakingCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "staking",
-		Short: "스테이킹 풀 상태",
-		Long:  "전체 네트워크의 스테이킹 상태와 관련 정보를 표시합니다.",
+		Short: "Staking pool status",
+		Long:  "Display the staking status and related information of the entire network.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("🥩 스테이킹 상태\n")
+			fmt.Printf("🥩 Staking Status\n")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
 			
-			// 전체 스테이킹 정보
-			fmt.Printf("📊 전체 스테이킹 정보:\n")
-			fmt.Printf("  총 공급량: 100,000,000 PXZ\n")
-			fmt.Printf("  총 스테이킹량: 65,000,000 PXZ\n")
-			fmt.Printf("  스테이킹 비율: 65.0%%\n")
-			fmt.Printf("  활성 위임자: 15,234명\n")
-			fmt.Printf("  현재 APY: 12.5%%\n")
+			// Total staking information
+			fmt.Printf("📊 Total Staking Info:\n")
+			fmt.Printf("  Total supply: 100,000,000 PXZ\n")
+			fmt.Printf("  Total staking amount: 65,000,000 PXZ\n")
+			fmt.Printf("  Staking ratio: 65.0%%\n")
+			fmt.Printf("  Active delegators: 15,234\n")
+			fmt.Printf("  Current APY: 12.5%%\n")
 			
-			// 보상 정보
-			fmt.Printf("\n💰 보상 정보:\n")
-			fmt.Printf("  블록 보상: 10 PXZ\n")
-			fmt.Printf("  수수료 보상: 2.5 PXZ (평균)\n")
-			fmt.Printf("  일일 총 보상: 약 36,000 PXZ\n")
-			fmt.Printf("  연간 인플레이션: 8.0%%\n")
+			// Reward information
+			fmt.Printf("\n💰 Reward Info:\n")
+			fmt.Printf("  Block reward: 10 PXZ\n")
+			fmt.Printf("  Fee reward: 2.5 PXZ (average)\n")
+			fmt.Printf("  Daily total reward: ~36,000 PXZ\n")
+			fmt.Printf("  Annual inflation: 8.0%%\n")
 			
-			// 언본딩 정보
-			fmt.Printf("\n⏰ 언본딩 정보:\n")
-			fmt.Printf("  언본딩 기간: 21일\n")
-			fmt.Printf("  현재 언본딩 중: 2,345,000 PXZ\n")
-			fmt.Printf("  언본딩 대기열: 123개 요청\n")
+			// Unbonding information
+			fmt.Printf("\n⏰ Unbonding Info:\n")
+			fmt.Printf("  Unbonding period: 21 days\n")
+			fmt.Printf("  Currently unbonding: 2,345,000 PXZ\n")
+			fmt.Printf("  Unbonding queue: 123 requests\n")
 			
-			// 슬래싱 정보
-			fmt.Printf("\n⚔️  슬래싱 정보:\n")
-			fmt.Printf("  금일 슬래싱: 0건\n")
-			fmt.Printf("  이번 주 슬래싱: 1건 (500 PXZ)\n")
-			fmt.Printf("  이번 달 슬래싱: 3건 (2,100 PXZ)\n")
-			fmt.Printf("  슬래싱된 검증자: 0명 (활성)\n")
+			// Slashing information
+			fmt.Printf("\n⚔️  Slashing Info:\n")
+			fmt.Printf("  Slashing today: 0\n")
+			fmt.Printf("  Slashing this week: 1 (500 PXZ)\n")
+			fmt.Printf("  Slashing this month: 3 (2,100 PXZ)\n")
+			fmt.Printf("  Slashed validators: 0 (active)\n")
 
 			return nil
 		},
@@ -265,15 +262,15 @@ func adminStatusStakingCmd() *cobra.Command {
 	return cmd
 }
 
-// adminResetCmd 노드 리셋 명령어 그룹
+// adminResetCmd node reset command group
 func adminResetCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "reset",
-		Short: "노드 데이터 및 설정 초기화",
-		Long: `PIXELZX 노드의 데이터와 설정을 초기화합니다.
+		Short: "Node data and configuration reset",
+		Long: `Resets the data and configuration of the PIXELZX node.
 
-⚠️  주의: 이 명령어는 노드의 데이터를 영구적으로 삭제합니다.
-사용하기 전에 반드시 중요한 데이터를 백업하세요.`,
+⚠️  Warning: This command permanently deletes the node's data.
+Make sure to back up important data before using it.`,
 	}
 
 	cmd.AddCommand(
@@ -285,71 +282,71 @@ func adminResetCmd() *cobra.Command {
 	return cmd
 }
 
-// adminResetDataCmd 블록체인 데이터 리셋
+// adminResetDataCmd blockchain data reset
 func adminResetDataCmd() *cobra.Command {
 	var confirm bool
 
 	cmd := &cobra.Command{
 		Use:   "data",
-		Short: "블록체인 데이터 삭제",
-		Long: `모든 블록체인 데이터를 삭제하고 제네시스 상태로 되돌립니다.
+		Short: "Delete blockchain data",
+		Long: `Deletes all blockchain data and reverts to genesis state.
 
-⚠️  경고: 이 작업은 되돌릴 수 없습니다!
-- 모든 블록 데이터가 삭제됩니다
-- 트랜잭션 기록이 모두 사라집니다
-- 상태 데이터베이스가 초기화됩니다`,
+⚠️  Warning: This operation is irreversible!
+- All block data will be deleted
+- All transaction records will be lost
+- State database will be initialized`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !confirm {
-				fmt.Printf("⚠️  데이터 삭제 확인이 필요합니다.\n")
-				fmt.Printf("--confirm 플래그를 사용하여 확인해주세요.\n")
+				fmt.Printf("⚠️  Data deletion confirmation is required.\n")
+				fmt.Printf("--confirm flag must be used to confirm.\n")
 				return nil
 			}
 
-			fmt.Printf("🗑️  블록체인 데이터 삭제 중...\n")
+			fmt.Printf("🗑️  Deleting blockchain data...\n")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
 			
-			// 삭제 과정 시뮬레이션
-			fmt.Printf("📁 삭제 중인 디렉토리:\n")
+			// Deletion process simulation
+			fmt.Printf("📁 Deleting directories:\n")
 			fmt.Printf("  ✅ ./data/blocks/\n")
 			fmt.Printf("  ✅ ./data/state/\n")
 			fmt.Printf("  ✅ ./data/txpool/\n")
 			fmt.Printf("  ✅ ./data/logs/\n")
 			
-			fmt.Printf("\n🔄 데이터베이스 초기화 중...\n")
-			fmt.Printf("  ✅ 상태 데이터베이스 초기화\n")
-			fmt.Printf("  ✅ 블록 인덱스 초기화\n")
-			fmt.Printf("  ✅ 트랜잭션 풀 초기화\n")
+			fmt.Printf("\n🔄 Initializing database...\n")
+			fmt.Printf("  ✅ State database initialized\n")
+			fmt.Printf("  ✅ Block index initialized\n")
+			fmt.Printf("  ✅ Transaction pool initialized\n")
 			
-			fmt.Printf("\n✅ 데이터 삭제 완료!\n")
-			fmt.Printf("\n📋 다음 단계:\n")
-			fmt.Printf("  1. 'pixelzx init' 명령어로 노드를 다시 초기화하세요\n")
-			fmt.Printf("  2. 'pixelzx start' 명령어로 노드를 시작하세요\n")
+			fmt.Printf("\n✅ Data deletion completed!\n")
+			fmt.Printf("\n📋 Next steps:\n")
+			fmt.Printf("  1. Run 'pixelzx init' to reinitialize the node\n")
+			fmt.Printf("  2. Run 'pixelzx start' to start the node\n")
 
 			return nil
 		},
 	}
 
-	cmd.Flags().BoolVar(&confirm, "confirm", false, "데이터 삭제를 확인합니다")
+	cmd.Flags().BoolVar(&confirm, "confirm", false, "Confirms data deletion")
 
 	return cmd
 }
 
-// adminResetConfigCmd 설정 파일 리셋
+// adminResetConfigCmd configuration file reset
 func adminResetConfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config",
-		Short: "설정 파일 기본값 복원",
-		Long:  "모든 설정 파일을 기본값으로 복원합니다.",
+		Short: "Restore configuration files to default",
+		Long:  "Restores all configuration files to default values.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("⚙️  설정 파일 복원 중...\n")
+			fmt.Printf("⚙️  Restoring configuration files...\n")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
 			
-			fmt.Printf("📁 복원 중인 설정 파일:\n")
+			fmt.Printf("📁 Restoring configuration files:\n")
 			fmt.Printf("  ✅ config.yaml\n")
 			fmt.Printf("  ✅ genesis.json\n")
 			fmt.Printf("  ✅ node.key\n")
 			
-			fmt.Printf("\n✅ 설정 파일 복원 완료!\n")
+			fmt.Printf("\n✅ Configuration files restored!\n")
 
 			return nil
 		},
@@ -358,56 +355,56 @@ func adminResetConfigCmd() *cobra.Command {
 	return cmd
 }
 
-// adminResetKeystoreCmd 키스토어 리셋
+// adminResetKeystoreCmd keystore reset
 func adminResetKeystoreCmd() *cobra.Command {
 	var confirm bool
 
 	cmd := &cobra.Command{
 		Use:   "keystore",
-		Short: "키스토어 초기화",
-		Long: `모든 키스토어 파일을 삭제합니다.
+		Short: "Initialize keystore",
+		Long: `Deletes all keystore files.
 
-⚠️  경고: 이 작업은 되돌릴 수 없습니다!
-모든 계정 정보가 영구적으로 삭제됩니다.`,
+⚠️  Warning: This operation is irreversible!
+All account information will be permanently deleted.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !confirm {
-				fmt.Printf("⚠️  키스토어 삭제 확인이 필요합니다.\n")
-				fmt.Printf("--confirm 플래그를 사용하여 확인해주세요.\n")
+				fmt.Printf("⚠️  Keystore deletion confirmation is required.\n")
+				fmt.Printf("--confirm flag must be used to confirm.\n")
 				return nil
 			}
 
-			fmt.Printf("🔐 키스토어 초기화 중...\n")
+			fmt.Printf("🔐 Initializing keystore...\n")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
 			
-			fmt.Printf("📁 삭제 중인 키스토어:\n")
+			fmt.Printf("📁 Deleting keystore:\n")
 			fmt.Printf("  ✅ ./keystore/\n")
 			fmt.Printf("  ✅ ./secrets/\n")
 			
-			fmt.Printf("\n✅ 키스토어 초기화 완료!\n")
+			fmt.Printf("\n✅ Keystore initialized!\n")
 
 			return nil
 		},
 	}
 
-	cmd.Flags().BoolVar(&confirm, "confirm", false, "키스토어 삭제를 확인합니다")
+	cmd.Flags().BoolVar(&confirm, "confirm", false, "Confirms keystore deletion")
 
 	return cmd
 }
 
-// adminBackupCmd 백업 명령어
+// adminBackupCmd backup command
 func adminBackupCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "backup",
-		Short: "중요 데이터 백업",
-		Long:  "노드의 중요한 데이터를 백업합니다.",
+		Short: "Backup important data",
+		Long:  "Backs up important data of the node.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("💾 데이터 백업 기능\n")
+			fmt.Printf("💾 Data backup feature\n")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
-			fmt.Printf("백업 기능은 추후 구현될 예정입니다.\n")
-			fmt.Printf("\n사용 가능한 하위 명령어:\n")
-			fmt.Printf("  pixelzx admin backup database  - 데이터베이스 백업\n")
-			fmt.Printf("  pixelzx admin backup keystore   - 키스토어 백업\n")
-			fmt.Printf("  pixelzx admin backup config     - 설정 파일 백업\n")
+			fmt.Printf("Backup feature will be implemented later.\n")
+			fmt.Printf("\nAvailable subcommands:\n")
+			fmt.Printf("  pixelzx admin backup database  - Database backup\n")
+			fmt.Printf("  pixelzx admin backup keystore   - Keystore backup\n")
+			fmt.Printf("  pixelzx admin backup config     - Configuration file backup\n")
 			return nil
 		},
 	}
@@ -415,16 +412,16 @@ func adminBackupCmd() *cobra.Command {
 	return cmd
 }
 
-// adminRestoreCmd 복원 명령어
+// adminRestoreCmd restore command
 func adminRestoreCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "restore",
-		Short: "백업된 데이터 복원",
-		Long:  "백업 파일로부터 노드 상태를 복원합니다.",
+		Short: "Restore data from backup",
+		Long:  "Restores node status from backup files.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("🔄 데이터 복원 기능\n")
+			fmt.Printf("🔄 Data restore feature\n")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
-			fmt.Printf("복원 기능은 추후 구현될 예정입니다.\n")
+			fmt.Printf("Restore feature will be implemented later.\n")
 			return nil
 		},
 	}
@@ -432,20 +429,20 @@ func adminRestoreCmd() *cobra.Command {
 	return cmd
 }
 
-// adminConfigCmd 설정 관리 명령어
+// adminConfigCmd configuration management command
 func adminConfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config",
-		Short: "고급 설정 관리",
-		Long:  "노드의 고급 설정을 관리합니다.",
+		Short: "Advanced configuration management",
+		Long:  "Manages advanced settings of the node.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("⚙️  설정 관리 기능\n")
+			fmt.Printf("⚙️  Configuration management feature\n")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
-			fmt.Printf("설정 관리 기능은 추후 구현될 예정입니다.\n")
-			fmt.Printf("\n사용 가능한 하위 명령어:\n")
-			fmt.Printf("  pixelzx admin config show      - 현재 설정 표시\n")
-			fmt.Printf("  pixelzx admin config update    - 설정 업데이트\n")
-			fmt.Printf("  pixelzx admin config validate  - 설정 유효성 검증\n")
+			fmt.Printf("Configuration management feature will be implemented later.\n")
+			fmt.Printf("\nAvailable subcommands:\n")
+			fmt.Printf("  pixelzx admin config show      - Show current configuration\n")
+			fmt.Printf("  pixelzx admin config update    - Update configuration\n")
+			fmt.Printf("  pixelzx admin config validate  - Validate configuration\n")
 			return nil
 		},
 	}
@@ -453,20 +450,20 @@ func adminConfigCmd() *cobra.Command {
 	return cmd
 }
 
-// adminDebugCmd 디버깅 도구 명령어
+// adminDebugCmd debugging tool command
 func adminDebugCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "debug",
-		Short: "디버깅 및 진단 도구",
-		Long:  "노드 디버깅과 성능 진단을 위한 도구를 제공합니다.",
+		Short: "Debugging and diagnostic tools",
+		Long:  "Provides tools for node debugging and performance diagnostics.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("🐛 디버깅 도구\n")
+			fmt.Printf("🐛 Debugging tools\n")
 			fmt.Printf("════════════════════════════════════════════════════════════════\n")
-			fmt.Printf("디버깅 도구는 추후 구현될 예정입니다.\n")
-			fmt.Printf("\n사용 가능한 하위 명령어:\n")
-			fmt.Printf("  pixelzx admin debug logs       - 로그 분석 도구\n")
-			fmt.Printf("  pixelzx admin debug metrics    - 성능 메트릭 수집\n")
-			fmt.Printf("  pixelzx admin debug trace      - 트랜잭션 추적\n")
+			fmt.Printf("Debugging tools will be implemented later.\n")
+			fmt.Printf("\nAvailable subcommands:\n")
+			fmt.Printf("  pixelzx admin debug logs       - Log analysis tool\n")
+			fmt.Printf("  pixelzx admin debug metrics    - Performance metric collection\n")
+			fmt.Printf("  pixelzx admin debug trace      - Transaction tracing\n")
 			return nil
 		},
 	}

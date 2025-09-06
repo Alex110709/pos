@@ -1,259 +1,600 @@
 # PIXELZX POS EVM Chain
 
-PIXELZX를 네이티브 토큰으로 하는 Proof of Stake (POS) 기반 Ethereum Virtual Machine (EVM) 호환 블록체인 네트워크입니다.
+PIXELZX POS EVM Chain is a Proof of Stake (PoS) based Ethereum Virtual Machine (EVM) compatible blockchain network with PIXELZX as its native token.
 
-## 목차
+## Table of Contents
 
-- [주요 특징](#주요-특징)
-- [토큰 사양](#토큰-사양)
-- [네트워크 파라미터](#네트워크-파라미터)
-- [아키텍처](#아키텍처)
-- [디렉토리 구조](#디렉토리-구조)
-- [빌드 및 실행](#빌드-및-실행)
-  - [의존성](#의존성)
-  - [로컬 빌드](#로컬-빌드)
-  - [Docker 빌드](#docker-빌드)
-  - [실행](#실행)
-- [**Docker 빠른 시작**](#docker-빠른-시작) 🚀
-  - [기본 Docker 명령어](#기본-docker-명령어)
-  - [환경 변수 설정](#환경-변수-설정)
-  - [볼륨 마운트 가이드](#볼륨-마운트-가이드)
-  - [헬스체크 및 상태 확인](#헬스체크-및-상태-확인)
-- [**P2P 네트워크 연결**](#p2p-네트워크-연결) 🌐
-  - [P2P 포트 설정](#p2p-포트-설정)
-  - [부트노드 연결](#부트노드-연결)
-  - [네트워크 상태 모니터링](#네트워크-상태-모니터링)
-  - [P2P 연결 트러블슈팅](#p2p-연결-트러블슈팅)
-- [**노드 초기화 및 설정**](#노드-초기화-및-설정) ⚙️
-  - [제네시스 파일 초기화](#제네시스-파일-초기화)
-  - [데이터 디렉토리 설정](#데이터-디렉토리-설정)
-  - [설정 파일 커스터마이징](#설정-파일-커스터마이징)
-  - [키스토어 관리](#키스토어-관리)
-  - [초기화 검증](#초기화-검증)
-- [API 엔드포인트](#api-엔드포인트)
-- [**문제 해결**](#문제-해결) 🚑
-  - [권한 문제 해결](#권한-문제-해결)
-  - [Docker 관련 문제](#docker-관련-문제)
-  - [P2P 네트워크 문제](#p2p-네트워크-문제)
-  - [API 연결 문제](#api-연결-문제)
-  - [성능 문제](#성능-문제)
-  - [로그 분석](#로그-분석)
+- [Key Features](#key-features)
+- [Token Specifications](#token-specifications)
+- [Network Parameters](#network-parameters)
+- [Architecture](#architecture)
+- [Directory Structure](#directory-structure)
+- [Build and Run](#build-and-run)
+  - [Dependencies](#dependencies)
+  - [Local Build](#local-build)
+  - [Docker Build](#docker-build)
+  - [Execution](#execution)
+- [**Docker Quick Start**](#docker-quick-start) 🚀
+  - [Basic Docker Commands](#basic-docker-commands)
+  - [Environment Variable Setup](#environment-variable-setup)
+  - [Volume Mount Guide](#volume-mount-guide)
+  - [Health Check and Status Verification](#health-check-and-status-verification)
+- [**CLI Commands Reference**](#cli-commands-reference) ⌨️
+  - [Global Options](#global-options)
+  - [Core Commands](#core-commands)
+  - [Docker Commands](#docker-commands)
+  - [Account Management](#account-management)
+  - [Node Management](#node-management)
+  - [Network Commands](#network-commands)
+  - [Staking Commands](#staking-commands)
+  - [Validator Commands](#validator-commands)
+  - [Governance Commands](#governance-commands)
+  - [Configuration Commands](#configuration-commands)
+  - [Admin Commands](#admin-commands)
+- [**P2P Network Connection**](#p2p-network-connection) 🌐
+  - [P2P Port Setup](#p2p-port-setup)
+  - [Bootnode Connection](#bootnode-connection)
+  - [Network Status Monitoring](#network-status-monitoring)
+  - [P2P Connection Troubleshooting](#p2p-connection-troubleshooting)
+- [**Node Initialization and Configuration**](#node-initialization-and-configuration) ⚙️
+  - [Genesis File Initialization](#genesis-file-initialization)
+  - [Data Directory Setup](#data-directory-setup)
+  - [Customizing Configuration Files](#customizing-configuration-files)
+  - [Keystore Management](#keystore-management)
+  - [Initialization Verification](#initialization-verification)
+- [API Endpoints](#api-endpoints)
+- [**Troubleshooting**](#troubleshooting) 🚑
+  - [Permission Issues Resolution](#permission-issues-resolution)
+  - [Docker Related Issues](#docker-related-issues)
+  - [P2P Network Issues](#p2p-network-issues)
+  - [API Connection Issues](#api-connection-issues)
+  - [Performance Issues](#performance-issues)
+  - [Log Analysis](#log-analysis)
 - [Docker Hub](#docker-hub)
-- [라이센스](#라이센스)
+- [License](#license)
 
-## 주요 특징
+## Key Features
 
-- **네이티브 토큰**: PIXELZX (PXZ)
-- **합의 메커니즘**: Proof of Stake (PoS)
-- **EVM 호환성**: 완전한 Ethereum 스마트 컨트랙트 지원
-- **높은 성능**: 3초 블록 타임, 1000+ TPS
-- **낮은 수수료**: 가스비 최적화
-- **멀티 아키텍처**: linux/amd64, linux/arm64, linux/arm/v7 지원
+- **Native Token**: PIXELZX (PXZ)
+- **Consensus Mechanism**: Proof of Stake (PoS)
+- **EVM Compatibility**: Full Ethereum smart contract support
+- **High Performance**: 3-second block time, 1000+ TPS
+- **Low Fees**: Gas fee optimization
+- **Multi-Architecture**: linux/amd64, linux/arm64, linux/arm/v7 support
 
-## 토큰 사양
+## Token Specifications
 
-| 속성 | 값 |
-|------|-----|
-| 토큰명 | PIXELZX |
-| 심볼 | PXZ |
-| 총 공급량 | 10,000,000,000,000,000 PXZ |
-| 소수점 자리수 | 18 |
-| 토큰 타입 | 네이티브 토큰 |
+| Attribute | Value |
+|-----------|-------|
+| Token Name | PIXELZX |
+| Symbol | PXZ |
+| Total Supply | 10,000,000,000,000,000 PXZ |
+| Decimal Places | 18 |
+| Token Type | Native Token |
 
-## 네트워크 파라미터
+## Network Parameters
 
-| 파라미터 | 값 |
-|----------|-----|
-| 블록 타임 | 3초 |
-| 블록 크기 제한 | 30MB |
-| 가스 제한 | 30,000,000 |
-| 최대 검증자 수 | 125 |
-| 언본딩 기간 | 21일 |
+| Parameter | Value |
+|-----------|-------|
+| Block Time | 3 seconds |
+| Block Size Limit | 30MB |
+| Gas Limit | 30,000,000 |
+| Max Validators | 125 |
+| Unbonding Period | 21 days |
 
-## 아키텍처
+## Architecture
 
-### 계층 구조
+### Layered Structure
 
-1. **Application Layer**: DApp 인터페이스, API 엔드포인트
-2. **EVM Layer**: Ethereum 가상 머신, 스마트 컨트랙트 실행
-3. **Consensus Layer**: PoS 합의 알고리즘, 블록 생성/검증
-4. **Network Layer**: P2P 통신, 블록 전파
-5. **Storage Layer**: 상태 저장소, 블록체인 데이터베이스
+1. **Application Layer**: DApp interface, API endpoints
+2. **EVM Layer**: Ethereum Virtual Machine, smart contract execution
+3. **Consensus Layer**: PoS consensus algorithm, block creation/validation
+4. **Network Layer**: P2P communication, block propagation
+5. **Storage Layer**: State storage, blockchain database
 
-## 디렉토리 구조
+## Directory Structure
 
 ```
 pos/
-├── cmd/                    # 실행 가능한 바이너리
-├── consensus/              # PoS 합의 메커니즘
-├── core/                   # 코어 블록체인 로직
-├── evm/                    # EVM 통합 및 실행 환경
-├── network/                # P2P 네트워킹
+├── cmd/                    # Executable binaries
+├── consensus/              # PoS consensus mechanism
+├── core/                   # Core blockchain logic
+├── evm/                    # EVM integration and execution environment
+├── network/                # P2P networking
 ├── api/                    # JSON-RPC, WebSocket API
-├── staking/                # 스테이킹 및 검증자 관리
-├── governance/             # 거버넌스 시스템
-├── storage/                # 데이터 저장 및 상태 관리
-├── crypto/                 # 암호화 및 보안 기능
-├── tests/                  # 테스트 코드
-├── docs/                   # 문서
-└── scripts/                # 유틸리티 스크립트
+├── staking/                # Staking and validator management
+├── governance/             # Governance system
+├── storage/                # Data storage and state management
+├── crypto/                 # Encryption and security functions
+├── tests/                  # Test code
+├── docs/                   # Documentation
+└── scripts/                # Utility scripts
 ```
 
-## 빌드 및 실행
+## Build and Run
 
-### 의존성
+### Dependencies
 
 - Go 1.21+
 - Git
-- Docker (선택사항)
-- Docker Buildx (멀티 플랫폼 빌드용)
+- Docker (optional)
+- Docker Buildx (for multi-platform builds)
 
-### 로컬 빌드
+### Local Build
 
 ```bash
 go mod tidy
 go build -o bin/pixelzx ./cmd/pixelzx
 ```
 
-### Docker 빌드
+### Docker Build
 
-#### 단일 플랫폼 빌드
+#### Single Platform Build
 ```bash
-# 현재 플랫폼용 이미지 빌드
+# Build image for current platform
 make docker-build-local
 
-# 또는 직접 빌드
+# Or build directly
 docker build -t pixelzx-pos:latest .
 ```
 
-#### 멀티 플랫폼 빌드
+#### Multi-Platform Build
 ```bash
-# Docker Buildx 설정
+# Docker Buildx setup
 make buildx-setup
 
-# 모든 플랫폼용 빌드 및 배포
+# Build and deploy for all platforms
 make docker-push-multi
 
-# 플랫폼별 테스트
+# Platform-specific testing
 make docker-test-multi
 ```
 
-#### 지원 플랫폼
-- **linux/amd64**: Intel/AMD 64비트 프로세서
-- **linux/arm64**: ARM 64비트 프로세서 (Apple Silicon, ARM 서버)
-- **linux/arm/v7**: ARM 32비트 프로세서 (라즈베리파이 등)
+#### Supported Platforms
+- **linux/amd64**: Intel/AMD 64-bit processors
+- **linux/arm64**: ARM 64-bit processors (Apple Silicon, ARM servers)
+- **linux/arm/v7**: ARM 32-bit processors (Raspberry Pi, etc.)
 
-### 실행
+### Execution
 
-#### 로컬 실행
+#### Local Execution
 ```bash
-# 제네시스 파일 초기화
+# Initialize genesis file
 ./bin/pixelzx init
 
-# 노드 시작
+# Start node
 ./bin/pixelzx start
 ```
 
-#### Docker 실행
+#### Docker Execution
 ```bash
-# 프로덕션 환경
+# Production environment
 docker-compose -f docker-compose.production.yml up -d
 
-# 개발 환경
+# Development environment
 docker-compose -f docker-compose.dev.yml up -d
 
-# 직접 실행
+# Direct execution
 docker run -d --name pixelzx-node \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
   yuchanshin/pixelzx-evm:latest
 ```
 
-## Docker 빠른 시작
+## Docker Quick Start
 
-PixelZX 노드를 Docker로 쉽고 빠르게 시작할 수 있는 방법을 안내합니다.
+Learn how to quickly and easily start a PixelZX node with Docker.
 
-### 기본 Docker 명령어
+### Basic Docker Commands
 
-#### 1. 이미지 다운로드
+#### 1. Image Download
 ```bash
-# 최신 이미지 다운로드
+# Download latest image
 docker pull yuchanshin/pixelzx-evm:latest
 
-# 특정 버전 다운로드
+# Download specific version
 docker pull yuchanshin/pixelzx-evm:v1.0.0
 ```
 
-#### 2. 노드 초기화 (선택사항)
+#### 2. Node Initialization (Optional)
 ```bash
-# 메인넷 초기화
+# Mainnet initialization
 docker run --rm \
   -v pixelzx-data:/app/data \
   yuchanshin/pixelzx-evm:latest \
   pixelzx init --datadir /app/data
 
-# 테스트넷 초기화
+# Testnet initialization
 docker run --rm \
   -v pixelzx-data:/app/data \
   yuchanshin/pixelzx-evm:latest \
   pixelzx init --datadir /app/data --chain-id 8889
 ```
 
-#### 3. 노드 실행
-```bash
-# 기본 실행
-docker run -d \
-  --name pixelzx-node \
-  -p 8545:8545 \
-  -p 8546:8546 \
-  -p 30303:30303 \
-  -v pixelzx-data:/app/data \
-  -v pixelzx-keystore:/app/keystore \
-  yuchanshin/pixelzx-evm:latest
+## CLI Commands Reference
 
-# 환경 변수와 함께 실행
-docker run -d \
-  --name pixelzx-node \
-  -p 8545:8545 \
-  -p 8546:8546 \
-  -p 30303:30303 \
-  -e PIXELZX_CHAIN_ID=8888 \
-  -e PIXELZX_NETWORK=mainnet \
-  -v pixelzx-data:/app/data \
-  -v pixelzx-keystore:/app/keystore \
-  yuchanshin/pixelzx-evm:latest
+The PIXELZX CLI provides a comprehensive set of commands for managing your blockchain node, similar to Ethereum's geth client.
+
+### Global Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--config` | Path to config file | |
+| `--datadir` | Data directory path | `./data` |
+| `--log-level` | Log level (debug, info, warn, error) | `info` |
+| `--testnet` | Run in testnet mode | `false` |
+| `--help`, `-h` | Show help | |
+| `--version`, `-v` | Show version | |
+
+### Core Commands
+
+| Command | Description |
+|---------|-------------|
+| `pixelzx account` | Manage accounts |
+| `pixelzx init` | Bootstrap and initialize a new genesis block |
+| `pixelzx start` | Start PIXELZX node |
+| `pixelzx config` | Manage configuration |
+| `pixelzx staking` | Manage staking features |
+| `pixelzx validator` | Manage validator features |
+| `pixelzx governance` | Manage governance features |
+| `pixelzx admin` | Admin node commands |
+| `pixelzx version` | Show version information |
+| `pixelzx help` | Show help for commands |
+
+### Docker Commands
+
+For Docker-based deployments, you can use these commands:
+
+| Command | Description |
+|---------|-------------|
+| `docker run pixelzx/pixelzx-evm pixelzx [command]` | Run PIXELZX CLI commands in a Docker container |
+| `docker-compose -f docker-compose.production.yml up` | Start production node with Docker Compose |
+| `docker exec -it pixelzx-node pixelzx [command]` | Execute CLI commands in a running container |
+
+### Account Management
+
+Manage accounts, including creating new accounts, listing existing accounts, importing private keys, 
+and updating accounts.
+
+```bash
+# Create a new account
+pixelzx account new
+
+# List all accounts
+pixelzx account list
+
+# Get account balance
+pixelzx account balance [address]
+
+# Import a private key
+pixelzx account import --private-key [key]
+
+# Export account private key
+pixelzx account export [address]
+
+# Update an existing account
+pixelzx account update [address]
 ```
 
-### 환경 변수 설정
+### Node Management
 
-| 변수명 | 기본값 | 설명 | 예시 |
-|--------|--------|------|------|
-| PIXELZX_CHAIN_ID | 8888 | 체인 ID | 8888 (메인넷), 8889 (테스트넷) |
-| PIXELZX_NETWORK | mainnet | 네트워크 타입 | mainnet, testnet, devnet |
-| PIXELZX_P2P_PORT | 30303 | P2P 통신 포트 | 30303 |
-| PIXELZX_RPC_PORT | 8545 | JSON-RPC API 포트 | 8545 |
-| PIXELZX_WS_PORT | 8546 | WebSocket API 포트 | 8546 |
-| PIXELZX_DATA_DIR | /app/data | 데이터 디렉토리 | /app/data |
-| PIXELZX_KEYSTORE_DIR | /app/keystore | 키스토어 디렉토리 | /app/keystore |
+Initialize and start your blockchain node.
 
-### 볼륨 마운트 가이드
-
-#### Docker 볼륨 생성
 ```bash
-# 데이터 및 키스토어 볼륨 생성
+# Initialize genesis block
+pixelzx init [network-name]
+
+# Start node
+pixelzx start
+
+# Show version information
+pixelzx version
+
+# Show help
+pixelzx help
+```
+
+### Network Commands
+
+Manage network connections and peer interactions.
+
+```bash
+# Attach to a running node
+pixelzx attach [endpoint]
+
+# Start interactive JavaScript console
+pixelzx console
+
+# List connected peers
+pixelzx admin peer list
+
+# Show detailed information about a specific peer
+pixelzx admin peer info [peer-id]
+
+# Connect to a new peer
+pixelzx admin peer connect [enode-url]
+
+# Disconnect from a specific peer
+pixelzx admin peer disconnect [peer-id]
+
+# Show peer connection statistics
+pixelzx admin peer stats
+```
+
+#### P2P Network Connection
+
+To connect to the PIXELZX network, you need to connect to at least one peer. You can use the following 
+bootnode addresses to establish initial connections:
+
+```bash
+# Connect to mainnet bootnode
+pixelzx admin peer connect enode://[mainnet-bootnode-id]@[mainnet-bootnode-ip]:30303
+
+# Connect to testnet bootnode
+pixelzx admin peer connect enode://[testnet-bootnode-id]@[testnet-bootnode-ip]:30303 --testnet
+```
+
+Once connected to a peer, the node will automatically discover and connect to other peers in the network.
+
+#### Peer Management
+
+Manage peer connections and view detailed information about connected nodes.
+
+| Command | Description |
+|---------|-------------|
+| `pixelzx admin peer list` | List connected peers |
+| `pixelzx admin peer info [peer-id]` | Show detailed information about a specific peer |
+| `pixelzx admin peer connect [enode-url]` | Connect to a new peer |
+| `pixelzx admin peer disconnect [peer-id]` | Disconnect from a specific peer |
+| `pixelzx admin peer stats` | Show peer connection statistics |
+
+##### List Peers (`admin peer list`)
+
+Display a table of all currently connected peers with their basic information.
+
+```bash
+# List peers in table format (default)
+pixelzx admin peer list
+
+# List peers in JSON format
+pixelzx admin peer list --format json
+
+# Show verbose information
+pixelzx admin peer list --verbose
+```
+
+##### Peer Information (`admin peer info`)
+
+Show detailed information about a specific peer including network addresses, connection status, and capabilities.
+
+```bash
+# Show information for a specific peer
+pixelzx admin peer info [peer-id]
+```
+
+##### Connect to Peer (`admin peer connect`)
+
+Establish a connection to a new peer using its enode URL.
+
+```bash
+# Connect to a peer
+pixelzx admin peer connect enode://[node-id]@[ip-address]:[port]
+```
+
+##### Disconnect from Peer (`admin peer disconnect`)
+
+Terminate connection with a specific peer.
+
+```bash
+# Disconnect from a peer
+pixelzx admin peer disconnect [peer-id]
+```
+
+##### Peer Statistics (`admin peer stats`)
+
+Display network statistics including connection counts, data transfer rates, and protocol information.
+
+```bash
+# Show peer statistics
+pixelzx admin peer stats
+```
+
+### Staking Commands
+
+Manage staking, unstaking, delegating, and viewing rewards.
+
+```bash
+# Stake tokens to a validator
+pixelzx staking stake [validator-address] --amount [amount]
+
+# Unstake tokens
+pixelzx staking unstake [validator-address] --amount [amount]
+
+# Delegate tokens to a validator
+pixelzx staking delegate [validator-address] --amount [amount]
+
+# Undelegate tokens
+pixelzx staking undelegate [validator-address] --amount [amount]
+
+# View staking rewards
+pixelzx staking rewards [address]
+
+# View staking status
+pixelzx staking status [address]
+```
+
+### Validator Commands
+
+Manage validator registration, status checking, and configuration changes.
+
+```bash
+# List validators
+pixelzx validator list
+
+# Register a new validator
+pixelzx validator register --address [address] --pubkey [pubkey]
+
+# Show validator information
+pixelzx validator info [validator-address]
+
+# Update validator information
+pixelzx validator update [validator-address] --commission [rate]
+```
+
+### Governance Commands
+
+Manage governance proposals, voting, and results.
+
+```bash
+# List governance proposals
+pixelzx governance list
+
+# Show proposal details
+pixelzx governance info [proposal-id]
+
+# Submit a new proposal
+pixelzx governance submit --title [title] --description [description]
+
+# Vote on a proposal
+pixelzx governance vote [proposal-id] --vote [yes|no|abstain]
+
+# Show proposal result
+pixelzx governance result [proposal-id]
+```
+
+### Configuration Commands
+
+Manage node configuration including viewing, setting, and validating configurations.
+
+```bash
+# Show current configuration
+pixelzx config show
+
+# Set configuration value
+pixelzx config set [key] [value]
+
+# Reset configuration to defaults
+pixelzx config reset --confirm
+
+# Validate configuration
+pixelzx config validate
+```
+
+### Admin Commands
+
+Advanced administration features for managing and monitoring your PIXELZX node.
+
+| Command | Description |
+|---------|-------------|
+| `pixelzx admin status` | Node status monitoring |
+| `pixelzx admin backup` | Backup important data |
+| `pixelzx admin restore` | Restore data from backup |
+| `pixelzx admin config` | Advanced configuration management |
+| `pixelzx admin debug` | Debugging and diagnostic tools |
+| `pixelzx admin peer` | P2P network peer management |
+| `pixelzx admin reset` | Node data and configuration reset |
+| `pixelzx admin metrics` | 노드 성능 메트릭스 수집 |
+| `pixelzx admin snapshot` | 블록체인 스냅샷 관리 |
+
+#### Node Status (`admin status`)
+
+Monitor various aspects of your node's current status including basic information, network connections, staking status, and validator information.
+
+```bash
+# Show node basic information and status
+pixelzx admin status node
+
+# Show P2P network connection status
+pixelzx admin status network
+
+# Show staking pool status
+pixelzx admin status staking
+
+# Show validator set information
+pixelzx admin status validators
+```
+
+#### Data Backup and Restore (`admin backup` / `admin restore`)
+
+Create backups of your node's important data and restore from previous backups.
+
+```bash
+# Backup node data
+pixelzx admin backup
+
+# Restore node data from backup
+pixelzx admin restore
+```
+
+#### Configuration Management (`admin config`)
+
+Advanced configuration file management and validation.
+
+```bash
+# Show current configuration
+pixelzx admin config show
+
+# Validate configuration file
+pixelzx admin config validate
+
+# Reset configuration to defaults
+pixelzx admin config reset
+```
+
+#### Debugging Tools (`admin debug`)
+
+Diagnostic tools for troubleshooting and analyzing node performance.
+
+```bash
+# Show detailed logs
+pixelzx admin debug logs
+
+# Analyze node performance
+pixelzx admin debug profile
+
+# Check system resources
+pixelzx admin debug system
+```
+
+#### Node Reset (`admin reset`)
+
+Reset node data and configuration to initial state.
+
+```bash
+# Reset node data
+pixelzx admin reset
+```
+
+### Environment Variable Setup
+
+| Variable Name | Default Value | Description | Example |
+|---------------|---------------|-------------|---------|
+| PIXELZX_CHAIN_ID | 8888 | Chain ID | 8888 (mainnet), 8889 (testnet) |
+| PIXELZX_NETWORK | mainnet | Network type | mainnet, testnet, devnet |
+| PIXELZX_P2P_PORT | 30303 | P2P communication port | 30303 |
+| PIXELZX_RPC_PORT | 8545 | JSON-RPC API port | 8545 |
+| PIXELZX_WS_PORT | 8546 | WebSocket API port | 8546 |
+| PIXELZX_DATA_DIR | /app/data | Data directory | /app/data |
+| PIXELZX_KEYSTORE_DIR | /app/keystore | Keystore directory | /app/keystore |
+
+### Volume Mount Guide
+
+#### Docker Volume Creation
+```bash
+# Create data and keystore volumes
 docker volume create pixelzx-data
 docker volume create pixelzx-keystore
 
-# 볼륨 위치 확인
+# Inspect volume locations
 docker volume inspect pixelzx-data
 docker volume inspect pixelzx-keystore
 ```
 
-#### 호스트 디렉토리 마운트
+#### Host Directory Mount
 ```bash
-# 호스트 디렉토리 생성
+# Create host directories
 mkdir -p $HOME/pixelzx/{data,keystore}
 
-# 호스트 디렉토리로 마운트
+# Mount to host directories
 docker run -d \
   --name pixelzx-node \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
@@ -262,140 +603,140 @@ docker run -d \
   yuchanshin/pixelzx-evm:latest
 ```
 
-### 헬스체크 및 상태 확인
+### Health Check and Status Verification
 
 ```bash
-# 컨테이너 상태 확인
+# Check container status
 docker ps | grep pixelzx-node
 
-# 로그 확인
+# Check logs
 docker logs pixelzx-node
 
-# 실시간 로그 확인
+# Check real-time logs
 docker logs -f pixelzx-node
 
-# 컨테이너 내부 접속
+# Access container shell
 docker exec -it pixelzx-node /bin/sh
 
-# 노드 버전 확인
+# Check node version
 docker exec pixelzx-node pixelzx version
 
-# 블록 높이 확인
+# Check block height
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
   http://localhost:8545
 ```
 
-## P2P 네트워크 연결
+## P2P Network Connection
 
-PixelZX 노드가 네트워크의 다른 노드들과 P2P 연결을 설정하는 방법을 안내합니다.
+Learn how to set up P2P connections between your PixelZX node and other nodes in the network.
 
-### P2P 포트 설정
+### P2P Port Setup
 
-#### 방화벽 설정
+#### Firewall Setup
 ```bash
-# Ubuntu/Debian 방화벽 설정
+# Ubuntu/Debian firewall setup
 sudo ufw allow 30303/tcp
 sudo ufw allow 30303/udp
 
-# CentOS/RHEL 방화벽 설정
+# CentOS/RHEL firewall setup
 sudo firewall-cmd --permanent --add-port=30303/tcp
 sudo firewall-cmd --permanent --add-port=30303/udp
 sudo firewall-cmd --reload
 ```
 
-#### Docker 포트 확인
+#### Docker Port Verification
 ```bash
-# P2P 포트 확인
+# Verify P2P port
 docker exec pixelzx-node netstat -tulpn | grep 30303
 
-# 포트 바인딩 확인
+# Verify port binding
 docker port pixelzx-node
 ```
 
-### 부트노드 연결
+### Bootnode Connection
 
-#### 네트워크 정보 확인
+#### Network Information Verification
 ```bash
-# 현재 노드 정보 확인
+# Verify current node information
 docker exec pixelzx-node pixelzx admin nodeInfo
 
-# 연결된 피어 목록 확인
+# Verify connected peer list
 docker exec pixelzx-node pixelzx admin peers
 
-# 피어 수 확인
+# Verify peer count
 docker exec pixelzx-node pixelzx admin peerCount
 ```
 
-#### 수동 피어 추가
+#### Passive Peer Addition
 ```bash
-# 특정 피어에 연결
+# Connect to a specific peer
 docker exec pixelzx-node pixelzx admin addPeer "enode://[PEER_ID]@[IP]:[PORT]"
 
-# 예시: 부트노드 연결
+# Example: Connect to bootnode
 docker exec pixelzx-node pixelzx admin addPeer "enode://abcd1234@52.123.45.67:30303"
 ```
 
-### 네트워크 상태 모니터링
+### Network Status Monitoring
 
-#### 동기화 상태 확인
+#### Sync Status Verification
 ```bash
-# 블록 동기화 상태 확인
+# Verify block sync status
 docker exec pixelzx-node pixelzx eth syncing
 
-# 현재 블록 번호 확인
+# Verify current block number
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
   http://localhost:8545
 
-# 네트워크 ID 확인
+# Verify network ID
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"net_version","params":[],"id":1}' \
   http://localhost:8545
 ```
 
-#### 피어 연결 상태 확인
+#### Peer Connection Status Verification
 ```bash
-# 연결된 피어 수 확인
+# Verify connected peer count
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}' \
   http://localhost:8545
 
-# 리스닝 상태 확인
+# Verify listening status
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"net_listening","params":[],"id":1}' \
   http://localhost:8545
 ```
 
-### P2P 연결 트러블슈팅
+### P2P Connection Troubleshooting
 
-| 문제 | 증상 | 원인 | 해결방법 |
-|------|------|------|----------|
-| 피어 연결 실패 | peerCount가 0 | 방화벽 차단 | 포트 30303 개방 |
-| 느린 동기화 | 블록 높이 증가 안함 | 부트노드 응답 없음 | 다른 부트노드 시도 |
-| NAT 문제 | 인바운드 연결 불가 | 공인 IP 없음 | --nat 옵션 사용 |
-| 포트 충돌 | 노드 시작 실패 | 포트 이미 사용 중 | 다른 포트 사용 |
+| Issue | Symptoms | Cause | Solution |
+|-------|----------|-------|----------|
+| Peer connection failure | peerCount is 0 | Firewall blocking | Open port 30303 |
+| Slow synchronization | Block height not increasing | Bootnode unresponsive | Try different bootnode |
+| NAT issue | Inbound connection impossible | No public IP | Use --nat option |
+| Port conflict | Node start failure | Port already in use | Use different port |
 
-#### 상세 디버깅
+#### Detailed Debugging
 ```bash
-# 네트워크 연결 상태 확인
+# Verify network connection status
 docker exec pixelzx-node ss -tulpn | grep 30303
 
-# 외부에서 포트 접근 테스트
+# Test external port access
 telnet [YOUR_PUBLIC_IP] 30303
 
-# Docker 네트워크 설정 확인
+# Verify Docker network settings
 docker inspect pixelzx-node | grep -A 10 "NetworkSettings"
 
-# 방화벽 상태 확인 (Ubuntu)
+# Verify firewall status (Ubuntu)
 sudo ufw status verbose
 
-# NAT 설정으로 노드 재시작
+# Restart node with NAT settings
 docker run -d \
   --name pixelzx-node-nat \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
@@ -404,30 +745,30 @@ docker run -d \
   pixelzx start --nat extip:[YOUR_PUBLIC_IP]
 ```
 
-## 노드 초기화 및 설정
+## Node Initialization and Configuration
 
-노드를 처음 시작할 때 필요한 초기화 과정과 설정 방법을 안내합니다.
+Learn how to initialize and configure your node when starting it for the first time.
 
-### 제네시스 파일 초기화
+### Genesis File Initialization
 
-#### 기본 초기화
+#### Basic Initialization
 ```bash
-# 메인넷 제네시스 초기화
+# Mainnet genesis initialization
 docker run --rm \
   -v pixelzx-data:/app/data \
   yuchanshin/pixelzx-evm:latest \
   pixelzx init --datadir /app/data
 
-# 테스트넷 제네시스 초기화
+# Testnet genesis initialization
 docker run --rm \
   -v pixelzx-data:/app/data \
   yuchanshin/pixelzx-evm:latest \
   pixelzx init --datadir /app/data --chain-id 8889 --network testnet
 ```
 
-#### 커스텀 제네시스 파일 사용
+#### Custom Genesis File Usage
 ```bash
-# 커스텀 제네시스 파일 준비
+# Prepare custom genesis file
 cat > custom-genesis.json << EOF
 {
   "chainId": 8888,
@@ -451,7 +792,7 @@ cat > custom-genesis.json << EOF
 }
 EOF
 
-# 커스텀 제네시스로 초기화
+# Initialize with custom genesis
 docker run --rm \
   -v $(pwd)/custom-genesis.json:/app/genesis.json \
   -v pixelzx-data:/app/data \
@@ -459,68 +800,68 @@ docker run --rm \
   pixelzx init /app/genesis.json --datadir /app/data
 ```
 
-### 데이터 디렉토리 설정
+### Data Directory Setup
 
-#### 볼륨 관리
+#### Volume Management
 ```bash
-# 데이터 볼륨 생성
+# Create data volume
 docker volume create pixelzx-data
 docker volume create pixelzx-keystore
 
-# 볼륨 백업
+# Backup volume
 docker run --rm \
   -v pixelzx-data:/source \
   -v $(pwd):/backup \
   alpine tar czf /backup/pixelzx-data-backup.tar.gz -C /source .
 
-# 볼륨 복원
+# Restore volume
 docker run --rm \
   -v pixelzx-data:/target \
   -v $(pwd):/backup \
   alpine tar xzf /backup/pixelzx-data-backup.tar.gz -C /target
 
-# 볼륨 내용 확인
+# Verify volume contents
 docker run --rm \
   -v pixelzx-data:/data \
   alpine ls -la /data
 ```
 
-#### 디렉토리 구조
+#### Directory Structure
 ```
 pixelzx-data/
-├── chaindata/          # 블록체인 데이터
-├── nodes/              # 노드 정보
-├── trie/               # 상태 트라이
-└── ancient/            # 아카이브 데이터
+├── chaindata/          # Blockchain data
+├── nodes/              # Node information
+├── trie/               # State trie
+└── ancient/            # Archive data
 
 pixelzx-keystore/
-├── UTC--[timestamp]--[address]  # 키 파일들
+├── UTC--[timestamp]--[address]  # Key files
 └── ...
 ```
 
-### 설정 파일 커스터마이징
+### Customizing Configuration Files
 
-#### 기본 설정 파일 추출
+#### Extract Default Configuration Files
 ```bash
-# 설정 파일 확인
+# Verify config files
 docker run --rm yuchanshin/pixelzx-evm:latest ls -la /app/configs/
 
-# 프로덕션 설정 파일 추출
+# Extract production config file
 docker run --rm \
   -v $(pwd):/backup \
   yuchanshin/pixelzx-evm:latest \
   cp /app/configs/production.yaml /backup/
 
-# 개발 설정 파일 추출
+# Extract development config file
 docker run --rm \
   -v $(pwd):/backup \
   yuchanshin/pixelzx-evm:latest \
   cp /app/configs/development.yaml /backup/
 ```
 
-#### 커스텀 설정으로 실행
+#### Run with Custom Configuration
 ```bash
-# 설정 파일 수정 (예시)
+# Modify config file (example)
 cat > custom-config.yaml << EOF
 chain_id: 8888
 network_id: 8888
@@ -552,7 +893,7 @@ logging:
   format: "json"
 EOF
 
-# 커스텀 설정으로 노드 실행
+# Run node with custom config
 docker run -d \
   --name pixelzx-custom \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
@@ -562,280 +903,280 @@ docker run -d \
   yuchanshin/pixelzx-evm:latest
 ```
 
-### 키스토어 관리
+### Keystore Management
 
-#### 계정 생성
+#### Account Creation
 ```bash
-# 새 계정 생성
+# Create new account
 docker exec -it pixelzx-node pixelzx account new
 
-# 계정 목록 확인
+# List accounts
 docker exec pixelzx-node pixelzx account list
 
-# 계정 정보 확인
+# Account info
 docker exec pixelzx-node pixelzx account info [ADDRESS]
 ```
 
-#### 키스토어 파일 관리
+#### Keystore File Management
 ```bash
-# 키스토어 파일 확인
+# Verify keystore files
 docker exec pixelzx-node ls -la /app/keystore/
 
-# 키스토어 파일 백업
+# Backup keystore files
 docker cp pixelzx-node:/app/keystore/ ./keystore-backup/
 
-# 키스토어 파일 복원
+# Restore keystore files
 docker cp ./keystore-backup/ pixelzx-node:/app/keystore/
 ```
 
-### 초기화 검증
+### Initialization Verification
 
-#### 시스템 상태 확인
+#### System Status Verification
 ```bash
-# 노드 버전 확인
+# Verify node version
 docker exec pixelzx-node pixelzx version
 
-# 체인 ID 확인
+# Verify chain ID
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}' \
   http://localhost:8545
 
-# 제네시스 블록 확인
+# Verify genesis block
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["0x0",true],"id":1}' \
   http://localhost:8545
 
-# 계정 잔액 확인
+# Verify account balance
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_getBalance","params":["0x742d35cc6672c0532925a3b8d6f7b71b47c0062f","latest"],"id":1}' \
   http://localhost:8545
 ```
 
-#### 초기화 문제 해결
+#### Initialization Troubleshooting
 ```bash
-# 데이터 디렉토리 초기화 (주의: 모든 데이터 삭제)
+# Data directory initialization (Caution: All data will be deleted)
 docker volume rm pixelzx-data
 docker volume create pixelzx-data
 
-# 권한 문제 해결
+# Resolve permission issues
 docker exec pixelzx-node chown -R 1000:1000 /app/data
 docker exec pixelzx-node chown -R 1000:1000 /app/keystore
 
-# 로그에서 오류 확인
+# Verify errors in logs
 docker logs pixelzx-node | grep -i error
 docker logs pixelzx-node | grep -i fatal
 ```
 
-## API 엔드포인트
+## API Endpoints
 
 ### JSON-RPC API
 
-- **포트**: 8545
+- **Port**: 8545
 - **URL**: http://localhost:8545
 
 ### WebSocket API
 
-- **포트**: 8546
+- **Port**: 8546
 - **URL**: ws://localhost:8546
 
-### P2P 네트워크
+### P2P Network
 
-- **포트**: 30303
-- **프로토콜**: TCP/UDP
+- **Port**: 30303
+- **Protocol**: TCP/UDP
 
-## 문제 해결
+## Troubleshooting
 
-### 권한 문제 해결
+### Permission Issues Resolution
 
-PIXELZX 노드 초기화 시 발생할 수 있는 권한 문제와 해결 방법을 안내합니다.
+Learn how to resolve permission issues that may occur during PIXELZX node initialization.
 
-#### 일반적인 권한 오류
+#### Common Permission Errors
 
-다음과 같은 오류가 발생할 수 있습니다:
+The following errors may occur:
 ```bash
-Error: 키스토어 디렉터리 생성 실패: mkdir data/keystore: permission denied
+Error: Keystore directory creation failed: mkdir data/keystore: permission denied
 ```
 
-#### 자동 권한 검증 및 해결 가이드
+#### Automatic Permission Verification and Resolution Guide
 
-PIXELZX v2.0부터는 자동 권한 검증 및 상세한 해결 가이드를 제공합니다:
+Starting from PIXELZX v2.0, automatic permission verification and detailed resolution guides are provided:
 
 ```bash
-# 권한 검증이 포함된 초기화
+# Initialization with permission verification
 ./pixelzx init
 
-# 권한 오류 발생 시 자동으로 해결 방법 안내
+# Automatic resolution guide when permission error occurs
 ```
 
-#### 로컬 환경 해결 방법
+#### Local Environment Solutions
 
-**1. 관리자 권한 사용**
+**1. Use Admin Privileges**
 ```bash
-# 전체 과정을 관리자 권한으로 실행
+# Run entire process with admin privileges
 sudo ./pixelzx init
 sudo ./pixelzx start
 ```
 
-**2. 홈 디렉터리 사용 (귀장)**
+**2. Use Home Directory (Recommended)**
 ```bash
-# 홈 디렉터리에 데이터 저장
+# Store data in home directory
 ./pixelzx init --datadir ~/pixelzx-data
 ./pixelzx start --datadir ~/pixelzx-data
 ```
 
-**3. 임시 디렉터리 사용 (테스트용)**
+**3. Use Temporary Directory (For Testing)**
 ```bash
-# 임시 디렉터리에 데이터 저장
+# Store data in temporary directory
 ./pixelzx init --datadir /tmp/pixelzx-data
 ./pixelzx start --datadir /tmp/pixelzx-data
 ```
 
-**4. 디렉터리 소유권 변경**
+**4. Change Directory Ownership**
 ```bash
-# 현재 사용자로 소유권 변경
+# Change ownership to current user
 sudo chown -R $USER:$USER ./data
 chmod -R 755 ./data
 
-# 이후 일반 사용자로 실행 가능
+# Can then run as regular user
 ./pixelzx init
 ./pixelzx start
 ```
 
-#### Docker 환경 해결 방법
+#### Docker Environment Solutions
 
-**1. Docker 도우미 스크립트 사용 (귀장)**
+**1. Use Docker Helper Script (Recommended)**
 ```bash
-# 권한 문제 자동 해결 도구
-./docker-helper.sh check  # 권한 상태 확인
-./docker-helper.sh fix    # 권한 문제 자동 수정
-./docker-helper.sh init   # 체인 초기화
-./docker-helper.sh start  # 노드 시작
+# Tool for automatic permission resolution
+./docker-helper.sh check  # Check permission status
+./docker-helper.sh fix    # Automatically fix permission issues
+./docker-helper.sh init   # Chain initialization
+./docker-helper.sh start  # Node start
 ```
 
-**2. 수동 권한 설정**
+**2. Manual Permission Setup**
 ```bash
-# 호스트 볼륨 권한 설정
+# Set host volume permissions
 sudo chown -R 1001:1001 ./data ./keystore ./logs
 chmod -R 755 ./data ./keystore ./logs
 
-# Docker Compose 로 시작
+# Start with Docker Compose
 docker-compose up -d
 ```
 
-**3. 개발 환경 사용**
+**3. Use Development Environment**
 ```bash
-# 개발용 Docker Compose (권한 문제 최소화)
+# Development Docker Compose (Minimizes permission issues)
 export UID=$(id -u)
 export GID=$(id -g)
 docker-compose -f docker-compose.dev.yml up -d
 ```
 
-**4. 컨테이너 내부 경로 사용**
+**4. Use Container Internal Paths**
 ```bash
-# 호스트 볼륨 마운트 없이 실행
+# Run without host volume mounts
 docker run -it yuchanshin/pixelzx-evm:latest init
 docker run -d yuchanshin/pixelzx-evm:latest start
 ```
 
-#### 문제 진단 및 해결 순서
+#### Troubleshooting Steps
 
-**1단계: 간단한 해결 시도**
+**1st Step: Simple Resolution Attempts**
 ```bash
-# 홈 디렉터리로 이동 후 재시도
+# Move to home directory and retry
 cd ~ && pixelzx init --datadir ~/pixelzx-data
 ```
 
-**2단계: 상세 진단**
+**2nd Step: Detailed Diagnosis**
 ```bash
-# 현재 사용자 및 권한 확인
+# Verify current user and permissions
 whoami
 id
 pwd
 ls -la
 
-# 대상 디렉터리 권한 확인
+# Verify target directory permissions
 ls -la ./
-ls -la ./data 2>/dev/null || echo "데이터 디렉터리 없음"
+ls -la ./data 2>/dev/null || echo "Data directory does not exist"
 ```
 
-**3단계: 규모또 해결**
+**3rd Step: Scalable Solutions**
 ```bash
-# 방법1: 소유권 변경
+# Method 1: Change ownership
 sudo chown -R $USER:$USER .
 
-# 방법2: 관리자 권한 사용
+# Method 2: Use admin privileges
 sudo pixelzx init
 
-# 방법3: 다른 위치 사용
+# Method 3: Use different location
 pixelzx init --datadir /tmp/pixelzx-test
 ```
 
-#### 예방 방법
+#### Prevention Methods
 
-**설치 시 권한 설정**
+**Set Permissions During Installation**
 ```bash
-# 빌드 시 운영 체제에 맞는 권한 설정
+# Set appropriate permissions for operating system during build
 make install-with-permissions
 
-# 또는 수동 설치
+# Or manual installation
 sudo cp bin/pixelzx /usr/local/bin/
 sudo chmod +x /usr/local/bin/pixelzx
 sudo mkdir -p /etc/pixelzx /var/lib/pixelzx
 sudo chown $USER:$USER /var/lib/pixelzx
 ```
 
-**환경 변수 설정**
+**Environment Variable Setup**
 ```bash
-# .bashrc 또는 .zshrc에 추가
+# Add to .bashrc or .zshrc
 export PIXELZX_HOME=$HOME/.pixelzx
 export PIXELZX_DATA_DIR=$PIXELZX_HOME/data
 
-# 사용당 시 자동 디렉터리 설정
-pixelzx init  # 자동으로 $PIXELZX_DATA_DIR 사용
+# Automatically set directories on use
+pixelzx init  # Automatically uses $PIXELZX_DATA_DIR
 ```
 
-### Docker 관련 문제
+### Docker Related Issues
 
 #### Exec Format Error
 
-Docker 컨테이너 실행 시 `exec format error`가 발생하는 경우:
+When `exec format error` occurs while running Docker container:
 
-1. **멀티 플랫폼 이미지 사용**: 
+1. **Use Multi-Platform Image**: 
    ```bash
    docker run --rm yuchanshin/pixelzx-evm:latest /usr/local/bin/pixelzx version
    ```
 
-2. **플랫폼 명시적 지정**:
+2. **Explicit Platform Specification**:
    ```bash
    docker run --rm --platform linux/amd64 yuchanshin/pixelzx-evm:latest /usr/local/bin/pixelzx version
    ```
 
-3. **로컬 빌드 사용**:
+3. **Use Local Build**:
    ```bash
    make docker-build-local
    docker run --rm yuchanshin/pixelzx-evm:local /usr/local/bin/pixelzx version
    ```
 
-자세한 내용은 [EXEC_FORMAT_ERROR_SOLUTION.md](./EXEC_FORMAT_ERROR_SOLUTION.md) 문서를 참조하세요.
+For more details, refer to the [EXEC_FORMAT_ERROR_SOLUTION.md](./EXEC_FORMAT_ERROR_SOLUTION.md) document.
 
-#### 컨테이너 시작 실패
+#### Container Start Failure
 ```bash
-# 컨테이너 로그 확인
+# Check container logs
 docker logs pixelzx-node
 
-# 컨테이너 상태 확인
+# Check container status
 docker ps -a | grep pixelzx
 
-# 포트 충돌 확인
+# Verify port conflicts
 sudo netstat -tulpn | grep -E '(8545|8546|30303)'
 
-# 컨테이너 재시작
+# Restart container
 docker restart pixelzx-node
 
-# 컨테이너 완전 재생성
+# Completely recreate container
 docker stop pixelzx-node
 docker rm pixelzx-node
 docker run -d --name pixelzx-node \
@@ -844,16 +1185,16 @@ docker run -d --name pixelzx-node \
   yuchanshin/pixelzx-evm:latest
 ```
 
-#### 볼륨 권한 문제
+#### Volume Permission Issues
 ```bash
-# 볼륨 권한 확인
+# Verify volume permissions
 docker exec pixelzx-node ls -la /app/
 
-# 권한 수정
+# Change permissions
 docker exec pixelzx-node chown -R 1000:1000 /app/data
 docker exec pixelzx-node chown -R 1000:1000 /app/keystore
 
-# SELinux 환경에서 볼륨 마운트 문제
+# Volume mount issues in SELinux environment
 docker run -d --name pixelzx-node \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
   -v pixelzx-data:/app/data:Z \
@@ -861,21 +1202,21 @@ docker run -d --name pixelzx-node \
   yuchanshin/pixelzx-evm:latest
 ```
 
-### P2P 네트워크 문제
+### P2P Network Issues
 
-#### 피어 연결 불가
+#### Peer Connection Issues
 ```bash
-# 방화벽 상태 확인
+# Verify firewall status
 sudo ufw status
 sudo firewall-cmd --list-ports
 
-# NAT 환경에서 포트 포워딩 확인
-# 라우터 설정에서 30303 포트를 노드 IP로 포워딩
+# Verify port forwarding in NAT environment
+# Forward port 30303 to node IP in router settings
 
-# 네트워크 연결 테스트
+# Verify network connection
 telnet [REMOTE_NODE_IP] 30303
 
-# P2P 디버깅 모드로 노드 시작
+# Start node in P2P debugging mode
 docker run -d --name pixelzx-debug \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
   -v pixelzx-data:/app/data \
@@ -883,28 +1224,28 @@ docker run -d --name pixelzx-debug \
   pixelzx start --verbosity 5
 ```
 
-#### 동기화 문제
+#### Synchronization Issues
 ```bash
-# 블록 동기화 상태 상세 확인
+# Verify detailed block sync status
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' \
   http://localhost:8545
 
-# 현재 블록과 네트워크 최신 블록 비교
-# 1. 현재 노드 블록 높이
+# Compare current node block with network latest block
+# 1. Current node block height
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
   http://localhost:8545
 
-# 2. 다른 노드에서 최신 블록 확인
-# 공식 블록 익스플로러나 다른 노드 API 사용
+# 2. Verify latest block from other node
+# Use official block explorer or other node API
 
-# 동기화 재시작
+# Restart synchronization
 docker restart pixelzx-node
 
-# 빠른 동기화 모드 (스냅샷 사용)
+# Fast synchronization mode (Snapshot usage)
 docker run -d --name pixelzx-fast \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
   -v pixelzx-data:/app/data \
@@ -912,24 +1253,24 @@ docker run -d --name pixelzx-fast \
   pixelzx start --syncmode fast
 ```
 
-### API 연결 문제
+### API Connection Issues
 
-#### JSON-RPC API 연결 실패
+#### JSON-RPC API Connection Failure
 ```bash
-# API 서비스 상태 확인
+# Verify API service status
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}' \
   http://localhost:8545
 
-# 포트 리스닝 상태 확인
+# Verify port listening status
 docker exec pixelzx-node netstat -tulpn | grep 8545
 
-# 방화벽에서 API 포트 허용
+# Allow API ports in firewall
 sudo ufw allow 8545/tcp
 sudo ufw allow 8546/tcp
 
-# CORS 문제 해결
+# Resolve CORS issues
 docker run -d --name pixelzx-cors \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
   -v pixelzx-data:/app/data \
@@ -937,43 +1278,43 @@ docker run -d --name pixelzx-cors \
   pixelzx start --http.corsdomain "*" --ws.origins "*"
 ```
 
-#### WebSocket 연결 문제
+#### WebSocket Connection Issues
 ```bash
-# WebSocket 연결 테스트
+# Test WebSocket connection
 wscat ws://localhost:8546
 
-# 또는 JavaScript로 테스트
+# Or test with JavaScript
 node -e "
   const WebSocket = require('ws');
   const ws = new WebSocket('ws://localhost:8546');
   ws.on('open', () => {
-    console.log('WebSocket 연결 성공');
+    console.log('WebSocket connection successful');
     ws.close();
   });
   ws.on('error', (err) => {
-    console.log('WebSocket 연결 실패:', err.message);
+    console.log('WebSocket connection failed:', err.message);
   });
 "
 
-# WebSocket 서비스 상태 확인
+# Verify WebSocket service status
 docker exec pixelzx-node netstat -tulpn | grep 8546
 ```
 
-### 성능 문제
+### Performance Issues
 
-#### 메모리 부족
+#### Insufficient Memory
 ```bash
-# 컨테이너 리소스 사용량 확인
+# Verify container resource usage
 docker stats pixelzx-node
 
-# 메모리 제한 설정
+# Set memory limits
 docker run -d --name pixelzx-limited \
   --memory="2g" --memory-swap="4g" \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
   -v pixelzx-data:/app/data \
   yuchanshin/pixelzx-evm:latest
 
-# 가비지 컨렉션 설정 조정
+# Adjust garbage collection settings
 docker run -d --name pixelzx-gc \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
   -v pixelzx-data:/app/data \
@@ -981,16 +1322,16 @@ docker run -d --name pixelzx-gc \
   pixelzx start --cache 1024 --gcmode archive
 ```
 
-#### 느린 응답 시간
+#### Slow Response Times
 ```bash
-# 캐시 크기 증가
+# Increase cache size
 docker run -d --name pixelzx-cache \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
   -v pixelzx-data:/app/data \
   yuchanshin/pixelzx-evm:latest \
   pixelzx start --cache 2048
 
-# SSD 사용 권장 (호스트 디렉토리 마운트 시)
+# SSD usage recommended (When using host directory mounts)
 mkdir -p /fast-ssd/pixelzx/{data,keystore}
 docker run -d --name pixelzx-ssd \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
@@ -999,45 +1340,45 @@ docker run -d --name pixelzx-ssd \
   yuchanshin/pixelzx-evm:latest
 ```
 
-### 로그 분석
+### Log Analysis
 
-#### 주요 로그 패턴
+#### Key Log Patterns
 ```bash
-# 오류 로그 확인
+# Verify error logs
 docker logs pixelzx-node 2>&1 | grep -i error
 docker logs pixelzx-node 2>&1 | grep -i fatal
 docker logs pixelzx-node 2>&1 | grep -i panic
 
-# P2P 연결 로그
+# P2P connection logs
 docker logs pixelzx-node 2>&1 | grep -i peer
 docker logs pixelzx-node 2>&1 | grep -i "connection"
 
-# 동기화 로그
+# Synchronization logs
 docker logs pixelzx-node 2>&1 | grep -i sync
 docker logs pixelzx-node 2>&1 | grep -i "block"
 
-# API 요청 로그
+# API request logs
 docker logs pixelzx-node 2>&1 | grep -i "rpc"
 docker logs pixelzx-node 2>&1 | grep -i "http"
 ```
 
-#### 로그 레벨 조정
+#### Log Level Adjustment
 ```bash
-# 디버그 로그 모드
+# Debug log mode
 docker run -d --name pixelzx-debug \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
   -v pixelzx-data:/app/data \
   yuchanshin/pixelzx-evm:latest \
   pixelzx start --verbosity 5
 
-# 조용한 로그 모드
+# Quiet log mode
 docker run -d --name pixelzx-quiet \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
   -v pixelzx-data:/app/data \
   yuchanshin/pixelzx-evm:latest \
   pixelzx start --verbosity 1
 
-# JSON 형식 로그
+# JSON formatted logs
 docker run -d --name pixelzx-json \
   -p 8545:8545 -p 8546:8546 -p 30303:30303 \
   -v pixelzx-data:/app/data \
@@ -1047,19 +1388,47 @@ docker run -d --name pixelzx-json \
 
 ## Docker Hub
 
-공식 이미지: [yuchanshin/pixelzx-evm](https://hub.docker.com/r/yuchanshin/pixelzx-evm)
+The PIXELZX POS EVM Chain is now available on Docker Hub with multi-architecture support:
+
+- **Repository**: [yuchanshin/pixelzx-evm](https://hub.docker.com/r/yuchanshin/pixelzx-evm)
+- **Supported Architectures**: linux/amd64, linux/arm64, linux/arm/v7
+- **Latest Version**: 1.0.0
+
+### Docker Pull Commands
 
 ```bash
-# 최신 버전 다운로드
+# Pull the latest image
 docker pull yuchanshin/pixelzx-evm:latest
 
-# 특정 버전 다운로드
-docker pull yuchanshin/pixelzx-evm:v1.0.0
+# Pull a specific version
+docker pull yuchanshin/pixelzx-evm:1.0.0
 
-# 매니페스트 확인 (지원 플랫폼 목록)
-docker buildx imagetools inspect yuchanshin/pixelzx-evm:latest
+# Pull image for a specific architecture
+docker pull --platform linux/arm64 yuchanshin/pixelzx-evm:latest
 ```
 
-## 라이센스
+### Docker Run Commands
+
+```bash
+# Run a PIXELZX node
+docker run -d --name pixelzx-node \
+  -p 8545:8545 -p 8546:8546 -p 30303:30303 \
+  yuchanshin/pixelzx-evm:latest
+
+# Run with volume mounts for data persistence
+docker run -d --name pixelzx-node \
+  -p 8545:8545 -p 8546:8546 -p 30303:30303 \
+  -v pixelzx-data:/app/data \
+  -v pixelzx-keystore:/app/keystore \
+  yuchanshin/pixelzx-evm:latest
+
+# Initialize genesis file
+docker run --rm \
+  -v pixelzx-data:/app/data \
+  yuchanshin/pixelzx-evm:latest \
+  pixelzx init
+```
+
+## License
 
 MIT License

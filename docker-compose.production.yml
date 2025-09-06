@@ -11,9 +11,9 @@ services:
       - "8546:8546"   # WebSocket port
       - "30303:30303" # P2P port
     volumes:
-      - pixelzx-data:/app/data
-      - pixelzx-keystore:/app/keystore
-      - pixelzx-logs:/app/logs
+      - ./data:/app/data
+      - ./keystore:/app/keystore
+      - ./logs:/app/logs
     environment:
       - PIXELZX_CHAIN_ID=8888
       - PIXELZX_NETWORK=mainnet
@@ -21,6 +21,7 @@ services:
       - PIXELZX_CONFIG=/app/config.yaml
       - PIXELZX_DATA_DIR=/app/data
       - PIXELZX_PLATFORM=${DOCKER_DEFAULT_PLATFORM:-linux/amd64}
+    command: ["/usr/local/bin/pixelzx", "start", "--config", "/app/data/config.yaml", "--datadir", "/app/data"]
     logging:
       driver: "json-file"
       options:
@@ -76,12 +77,6 @@ services:
       - monitoring
 
 volumes:
-  pixelzx-data:
-    driver: local
-  pixelzx-keystore:
-    driver: local
-  pixelzx-logs:
-    driver: local
   prometheus-data:
     driver: local
   grafana-data:
@@ -92,4 +87,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/16
+        - subnet: 172.21.0.0/16
