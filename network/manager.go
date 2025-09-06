@@ -189,6 +189,18 @@ func (nm *Manager) GetPeerCount() int {
 	return len(nm.peers)
 }
 
+// GetLocalEnode returns the local node's enode information
+func (nm *Manager) GetLocalEnode() (*enode.Node, error) {
+	nm.mu.RLock()
+	defer nm.mu.RUnlock()
+	
+	if nm.server == nil {
+		return nil, fmt.Errorf("P2P server not initialized")
+	}
+	
+	return nm.server.Self(), nil
+}
+
 // setupProtocols sets up the network protocols
 func (nm *Manager) setupProtocols() {
 	protocol := p2p.Protocol{

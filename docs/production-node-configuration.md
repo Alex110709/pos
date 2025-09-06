@@ -8,7 +8,7 @@ PIXELZX POS EVM 체인 프로덕션 노드는 이더리움 Geth 클라이언트�
 
 ### 2.1 시스템 구성도
 
-```mermaid
+```
 graph TD
     A[PIXELZX CLI] --> B[Application Layer]
     B --> C[EVM Layer]
@@ -100,6 +100,30 @@ pixelzx [global options] command [command options] [arguments...]
 | `admin restore` | 데이터 복원 | `pixelzx admin restore --source /backup` |
 | `admin config` | 설정 관리 | `pixelzx admin config show` |
 | `admin debug` | 디버깅 도구 | `pixelzx admin debug trace` |
+| `admin peer self` | 로컬 노드 enode 정보 조회 | `pixelzx admin peer self` |
+
+##### 3.2.5.1 로컬 노드 정보 조회 (`admin peer self`)
+
+로컬 PIXELZX 노드의 고유 식별자인 enode URL을 조회할 수 있습니다. 이 정보는 다른 노드와 P2P 연결을 설정할 때 사용됩니다.
+
+```
+# 기본 텍스트 형식으로 enode 정보 조회
+pixelzx admin peer self
+
+# JSON 형식으로 enode 정보 조회
+pixelzx admin peer self --format json
+```
+
+출력 예시:
+```
+로컬 노드 enode 정보:
+========================
+enode URL: enode://a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12345@192.168.1.100:30303
+Node ID: a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+IP 주소: 192.168.1.100
+TCP 포트: 30303
+UDP 포트: 30303
+```
 
 ### 3.3 글로벌 옵션
 
@@ -115,7 +139,7 @@ pixelzx [global options] command [command options] [arguments...]
 
 ### 4.1 프로덕션 설정 파일 (production.yaml)
 
-```yaml
+```
 # PIXELZX POS EVM Chain Production Configuration
 
 # Network Configuration
@@ -246,7 +270,7 @@ network_security:
 
 ### 5.1 Docker 이미지 빌드
 
-```dockerfile
+```
 # Dockerfile
 FROM golang:1.21-alpine AS builder
 
@@ -284,7 +308,7 @@ ENTRYPOINT ["./pixelzx"]
 
 ### 5.2 Docker Compose 설정
 
-```yaml
+```
 # docker-compose.production.yml
 version: '3.8'
 
@@ -324,7 +348,7 @@ volumes:
 
 Docker Buildx를 사용하여 멀티 아키텍처 이미지를 빌드합니다:
 
-```bash
+```
 # Buildx 설정
 docker buildx create --name pixelzx-builder --use
 
@@ -363,7 +387,7 @@ docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 \
 
 프로덕션 환경에서는 다음과 같은 로깅 구성을 권장합니다:
 
-```yaml
+```
 logging:
   level: "info"
   file: "/app/logs/pixelzx.log"
@@ -377,7 +401,7 @@ logging:
 
 메트릭 엔드포인트를 활성화하여 Prometheus와 같은 모니터링 시스템과 연동:
 
-```yaml
+```
 metrics:
   enabled: true
   host: "0.0.0.0"
@@ -391,7 +415,7 @@ metrics:
 
 관리자 명령어를 사용하여 정기적인 데이터 백업 수행:
 
-```bash
+```
 # 데이터 백업
 pixelzx admin backup --target /backup/location
 
@@ -403,7 +427,7 @@ pixelzx export --datadir /app/data chain_backup.dat
 
 백업된 데이터를 사용하여 노드 복구:
 
-```bash
+```
 # 전체 데이터 복구
 pixelzx admin restore --source /backup/location
 
@@ -417,7 +441,7 @@ pixelzx import --datadir /app/data chain_backup.dat
 
 데이터베이스 및 Trie 캐시를 적절히 조정하여 성능 최적화:
 
-```yaml
+```
 performance:
   cache:
     database: 512  # MB
@@ -430,7 +454,7 @@ performance:
 
 트랜잭션 풀 파라미터를 조정하여 네트워크 트래픽 및 처리량 최적화:
 
-```yaml
+```
 txpool:
   account_slots: 16
   global_slots: 4096

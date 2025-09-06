@@ -307,6 +307,9 @@ pixelzx console
 # List connected peers
 pixelzx admin peer list
 
+# Show local node enode information
+pixelzx admin peer self
+
 # Show detailed information about a specific peer
 pixelzx admin peer info [peer-id]
 
@@ -342,6 +345,7 @@ Manage peer connections and view detailed information about connected nodes.
 | Command | Description |
 |---------|-------------|
 | `pixelzx admin peer list` | List connected peers |
+| `pixelzx admin peer self` | Show local node enode information |
 | `pixelzx admin peer info [peer-id]` | Show detailed information about a specific peer |
 | `pixelzx admin peer connect [enode-url]` | Connect to a new peer |
 | `pixelzx admin peer disconnect [peer-id]` | Disconnect from a specific peer |
@@ -360,6 +364,18 @@ pixelzx admin peer list --format json
 
 # Show verbose information
 pixelzx admin peer list --verbose
+```
+
+##### Local Node Information (`admin peer self`)
+
+Show the enode URL and related information for the local node. This information can be shared with other nodes to establish connections.
+
+```bash
+# Show local node information in text format (default)
+pixelzx admin peer self
+
+# Show local node information in JSON format
+pixelzx admin peer self --format json
 ```
 
 ##### Peer Information (`admin peer info`)

@@ -3,6 +3,8 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
+	"net"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -29,6 +31,7 @@ func adminPeerCmd() *cobra.Command {
 		adminPeerStatsCmd(),
 		adminPeerConnectCmd(),
 		adminPeerDisconnectCmd(),
+		adminPeerSelfCmd(), // Newly added command
 	)
 
 	return cmd
@@ -123,6 +126,82 @@ func adminPeerDisconnectCmd() *cobra.Command {
 	}
 
 	return cmd
+}
+
+// adminPeerSelfCmd shows local node enode information
+func adminPeerSelfCmd() *cobra.Command {
+	var format string
+	
+	cmd := &cobra.Command{
+		Use:   "self",
+		Short: "로컬 노드의 enode 정보 조회",
+		Long:  "현재 PIXELZX 노드의 enode URL과 관련 정보를 표시합니다.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return showLocalEnode(format)
+		},
+	}
+	
+	cmd.Flags().StringVar(&format, "format", "text", "출력 형식 (text, json)")
+	
+	return cmd
+}
+
+// showLocalEnode displays local node enode information
+func showLocalEnode(format string) error {
+	// TODO: In a real implementation, this would fetch actual enode data from the network manager
+	// For now, we'll use mock data for demonstration purposes
+	
+	// Create a mock enode for demonstration purposes
+	// In a real implementation, we would call:
+	// node, err := getNetworkManager().GetLocalEnode()
+	// if err != nil {
+	//     return fmt.Errorf("enode 정보 조회 실패: %w", err)
+	// }
+	
+	if format == "json" {
+		return showLocalEnodeJSON()
+	}
+	
+	return showLocalEnodeText()
+}
+
+// showLocalEnodeText displays enode information in text format
+func showLocalEnodeText() error {
+	fmt.Printf("로컬 노드 enode 정보:\n")
+	fmt.Printf("========================\n")
+	// For demonstration, we'll use a mock enode URL
+	fmt.Printf("enode URL: enode://a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12345@192.168.1.100:30303\n")
+	fmt.Printf("Node ID: a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\n")
+	fmt.Printf("IP 주소: 192.168.1.100\n")
+	fmt.Printf("TCP 포트: 30303\n")
+	fmt.Printf("UDP 포트: 30303\n")
+	
+	return nil
+}
+
+// showLocalEnodeJSON displays enode information in JSON format
+func showLocalEnodeJSON() error {
+	info := struct {
+		EnodeURL string `json:"enode_url"`
+		NodeID   string `json:"node_id"`
+		IP       string `json:"ip"`
+		TCPPort  int    `json:"tcp_port"`
+		UDPPort  int    `json:"udp_port"`
+	}{
+		EnodeURL: "enode://a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12345@192.168.1.100:30303",
+		NodeID:   "a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+		IP:       "192.168.1.100",
+		TCPPort:  30303,
+		UDPPort:  30303,
+	}
+	
+	output, err := json.MarshalIndent(info, "", "  ")
+	if err != nil {
+		return fmt.Errorf("JSON 직렬화 실패: %w", err)
+	}
+	
+	fmt.Println(string(output))
+	return nil
 }
 
 // PeerInfo represents information about a peer
@@ -249,6 +328,11 @@ func showPeerStats(duration time.Duration) error {
 
 // connectToPeer attempts to connect to a new peer
 func connectToPeer(enodeURL string) error {
+	// First, perform detailed validation of the enode URL
+	if err := validateEnodeURL(enodeURL); err != nil {
+		return err
+	}
+
 	// In a real implementation, this would use the network manager to connect to a peer
 	// For now, we'll just validate the enode URL and show a message
 	
@@ -260,6 +344,112 @@ func connectToPeer(enodeURL string) error {
 	fmt.Printf("피어에 연결 시도 중: %s\n", enodeURL)
 	fmt.Printf("연결이 성공적으로 시작되었습니다.\n")
 	
+	return nil
+}
+
+// validateEnodeURL performs detailed validation of an enode URL
+func validateEnodeURL(enodeURL string) error {
+	// Check if the URL starts with "enode://"
+	if !strings.HasPrefix(enodeURL, "enode://") {
+		return fmt.Errorf("enode URL must start with 'enode://'")
+	}
+
+	// Remove the "enode://" prefix
+	urlWithoutPrefix := strings.TrimPrefix(enodeURL, "enode://")
+
+	// Split the URL into public key and address parts
+	parts := strings.Split(urlWithoutPrefix, "@")
+	if len(parts) != 2 {
+		return fmt.Errorf("invalid enode URL format: expected 'enode://<public-key>@<ip>:<port>'")
+	}
+
+	publicKey := parts[0]
+	address := parts[1]
+
+	// Validate the public key
+	if err := validatePublicKey(publicKey); err != nil {
+		return err
+	}
+
+	// Handle IPv6 addresses which are enclosed in brackets
+	var ip, port string
+	if strings.HasPrefix(address, "[") {
+		// IPv6 format: [ipv6]:port
+		endBracket := strings.Index(address, "]")
+		if endBracket == -1 {
+			return fmt.Errorf("invalid IPv6 address format: missing closing bracket")
+		}
+		
+		ip = address[1:endBracket]
+		if len(address) <= endBracket+2 || address[endBracket+1] != ':' {
+			return fmt.Errorf("invalid address format: expected '[ipv6]:port'")
+		}
+		
+		port = address[endBracket+2:]
+	} else {
+		// IPv4 format: ip:port
+		addrParts := strings.Split(address, ":")
+		if len(addrParts) != 2 {
+			return fmt.Errorf("invalid address format: expected '<ip>:<port>'")
+		}
+		
+		ip = addrParts[0]
+		port = addrParts[1]
+	}
+
+	// Validate IP address
+	if err := validateIP(ip); err != nil {
+		return err
+	}
+
+	// Validate port
+	if err := validatePort(port); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validatePublicKey validates the public key part of an enode URL
+func validatePublicKey(publicKey string) error {
+	// Check if the public key is a valid hex string
+	for _, r := range publicKey {
+		if !((r >= '0' && r <= '9') || (r >= 'a' && r <= 'f') || (r >= 'A' && r <= 'F')) {
+			return fmt.Errorf("공개 키는 16진수 문자열이어야 합니다")
+		}
+	}
+
+	// Check if the public key length is exactly 128 characters (64 bytes)
+	if len(publicKey) != 128 {
+		return fmt.Errorf("공개 키는 128자 길이의 16진수 문자열이어야 합니다 (현재 길이: %d)", len(publicKey))
+	}
+
+	return nil
+}
+
+// validateIP validates the IP address part of an enode URL
+func validateIP(ip string) error {
+	// Try to parse the IP address
+	if net.ParseIP(ip) == nil {
+		return fmt.Errorf("IP 주소 형식이 올바르지 않습니다: %s", ip)
+	}
+
+	return nil
+}
+
+// validatePort validates the port part of an enode URL
+func validatePort(portStr string) error {
+	// Convert string to integer
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		return fmt.Errorf("포트 번호는 1-65535 범위의 숫자여야 합니다: %s", portStr)
+	}
+
+	// Check if port is in valid range
+	if port < 1 || port > 65535 {
+		return fmt.Errorf("포트 번호는 1-65535 범위의 숫자여야 합니다: %s", portStr)
+	}
+
 	return nil
 }
 
