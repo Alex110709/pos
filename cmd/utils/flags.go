@@ -580,7 +580,7 @@ var (
 	}
 	RPCGlobalTxFeeCapFlag = &cli.Float64Flag{
 		Name:     "rpc.txfeecap",
-		Usage:    "Sets a cap on transaction fee (in ether) that can be sent via the RPC APIs (0 = no cap)",
+		Usage:    "Sets a cap on transaction fee (in PZX) that can be sent via the RPC APIs (0 = no cap)",
 		Value:    ethconfig.Defaults.RPCTxFeeCap,
 		Category: flags.APICategory,
 	}
@@ -1287,7 +1287,7 @@ func MakeDatabaseHandles(max int) int {
 // setEtherbase retrieves the etherbase from the directly specified command line flags.
 func setEtherbase(ctx *cli.Context, cfg *ethconfig.Config) {
 	if ctx.IsSet(MinerEtherbaseFlag.Name) {
-		log.Warn("Option --miner.etherbase is deprecated as the etherbase is set by the consensus client post-merge")
+		log.Warn("Option --miner.etherbase is deprecated as the base token is set by the consensus client post-merge")
 	}
 	if !ctx.IsSet(MinerPendingFeeRecipientFlag.Name) {
 		return

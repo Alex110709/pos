@@ -40,7 +40,7 @@ func TestGeneratePOSChain(t *testing.T) {
 		address = crypto.PubkeyToAddress(key.PublicKey) // 658bdf435d810c91414ec09147daa6db62406379
 		aa      = common.Address{0xaa}
 		bb      = common.Address{0xbb}
-		funds   = big.NewInt(0).Mul(big.NewInt(1337), big.NewInt(params.Ether))
+		funds   = big.NewInt(0).Mul(big.NewInt(1337), big.NewInt(params.PZX))
 		config  = *params.MergedTestChainConfig
 		gspec   = &Genesis{
 			Config: &config,

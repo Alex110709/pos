@@ -634,13 +634,19 @@ func DefaultHoleskyGenesisBlock() *Genesis {
 
 // DefaultHoodiGenesisBlock returns the Hoodi network genesis block.
 func DefaultHoodiGenesisBlock() *Genesis {
+	alloc := decodePrealloc(hoodiAllocData)
+	// Multiply the balance of each account by 100
+	for addr, account := range alloc {
+		account.Balance = new(big.Int).Mul(account.Balance, big.NewInt(100))
+		alloc[addr] = account
+	}
 	return &Genesis{
 		Config:     params.HoodiChainConfig,
 		Nonce:      0x1234,
 		GasLimit:   0x2255100,
 		Difficulty: big.NewInt(0x01),
 		Timestamp:  1742212800,
-		Alloc:      decodePrealloc(hoodiAllocData),
+		Alloc:      alloc,
 	}
 }
 

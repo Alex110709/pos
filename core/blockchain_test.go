@@ -3272,7 +3272,7 @@ func testEIP1559Transition(t *testing.T, scheme string) {
 		key2, _ = crypto.HexToECDSA("8a1f9a8f95be41cd7ccb6168179afb4504aefe388d1e14474d32c45c72ce7b7a")
 		addr1   = crypto.PubkeyToAddress(key1.PublicKey)
 		addr2   = crypto.PubkeyToAddress(key2.PublicKey)
-		funds   = new(big.Int).Mul(common.Big1, big.NewInt(params.Ether))
+		funds   = new(big.Int).Mul(common.Big1, big.NewInt(params.PZX))
 		config  = *params.AllEthashProtocolChanges
 		gspec   = &Genesis{
 			Config: &config,
@@ -3912,7 +3912,7 @@ func TestEIP3651(t *testing.T) {
 		key2, _ = crypto.HexToECDSA("8a1f9a8f95be41cd7ccb6168179afb4504aefe388d1e14474d32c45c72ce7b7a")
 		addr1   = crypto.PubkeyToAddress(key1.PublicKey)
 		addr2   = crypto.PubkeyToAddress(key2.PublicKey)
-		funds   = new(big.Int).Mul(common.Big1, big.NewInt(params.Ether))
+		funds   = new(big.Int).Mul(common.Big1, big.NewInt(params.PZX))
 		config  = *params.AllEthashProtocolChanges
 		gspec   = &Genesis{
 			Config: &config,
@@ -4110,7 +4110,7 @@ func TestEIP7702(t *testing.T) {
 		addr2   = crypto.PubkeyToAddress(key2.PublicKey)
 		aa      = common.HexToAddress("0x000000000000000000000000000000000000aaaa")
 		bb      = common.HexToAddress("0x000000000000000000000000000000000000bbbb")
-		funds   = new(big.Int).Mul(common.Big1, big.NewInt(params.Ether))
+		funds   = new(big.Int).Mul(common.Big1, big.NewInt(params.PZX))
 	)
 	gspec := &Genesis{
 		Config: &config,
