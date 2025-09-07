@@ -1,0 +1,25 @@
+# PIXELZX Development Configuration
+
+network:
+  name: "pixelzx-dev"
+  chain_id: 8888
+  bootnodes:
+    - "enode://devnode1@127.0.0.1:30303"
+
+node:
+  datadir: "./data"
+  keystore: "./keystore"
+  
+rpc:
+  enabled: true
+  port: 8545
+  addr: "127.0.0.1"
+  
+websocket:
+  enabled: true
+  port: 8546
+  addr: "127.0.0.1"
+  
+p2p:
+  port: 30303
+  addr: "0.0.0.0"

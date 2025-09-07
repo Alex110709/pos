@@ -13,6 +13,70 @@ https://pkg.go.dev/badge/github.com/ethereum/go-ethereum
 Automated builds are available for stable releases and the unstable master branch. Binary
 archives are published at https://geth.ethereum.org/downloads/.
 
+## PIXELZX POS EVM Chain
+
+PIXELZX is a Proof of Stake (PoS) consensus-based EVM-compatible blockchain. 
+This project provides high performance (3-second block time, 1000+ TPS) and low transaction fees, 
+using PIXELZX (PXZ) as its native token.
+
+### Quick Start with PIXELZX
+
+#### Build PIXELZX CLI
+
+```shell
+make pixelzx
+```
+
+#### Initialize the network
+
+```shell
+./build/bin/pixelzx init
+```
+
+#### Start a node
+
+```shell
+./build/bin/pixelzx start
+```
+
+#### Start a validator node
+
+```shell
+./build/bin/pixelzx start --validator
+```
+
+### Docker
+
+You can also run PIXELZX using Docker:
+
+```shell
+# Build the Docker image
+make docker-build
+
+# Run a PIXELZX node
+docker run -d \
+  --name pixelzx-node \
+  -p 8545:8545 \
+  -p 8546:8546 \
+  -p 30303:30303 \
+  -v $(pwd)/data:/app/data \
+  pixelzx-node:latest
+```
+
+### Docker Compose
+
+For multi-node setups, use Docker Compose:
+
+```shell
+# Start a multi-node network
+make compose-up
+
+# Start a development environment
+make compose-dev-up
+```
+
+See [DOCKER_HUB_GUIDE.md](DOCKER_HUB_GUIDE.md) for more detailed Docker usage instructions.
+
 ## Building the source
 
 For prerequisites and detailed build instructions please read the [Installation Instructions](https://geth.ethereum.org/docs/getting-started/installing-geth).

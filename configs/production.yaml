@@ -1,0 +1,26 @@
+# PIXELZX Production Configuration
+
+network:
+  name: "pixelzx-mainnet"
+  chain_id: 8888
+  bootnodes:
+    - "enode://bootnode1@192.168.1.100:30303"
+    - "enode://bootnode2@192.168.1.101:30303"
+
+node:
+  datadir: "/var/lib/pixelzx"
+  keystore: "/var/lib/pixelzx/keystore"
+  
+rpc:
+  enabled: true
+  port: 8545
+  addr: "0.0.0.0"
+  
+websocket:
+  enabled: true
+  port: 8546
+  addr: "0.0.0.0"
+  
+p2p:
+  port: 30303
+  addr: "0.0.0.0"

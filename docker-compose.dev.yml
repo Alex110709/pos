@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  pixelzx-dev-node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pixelzx-dev-node
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+      - "30303:30303"
+    volumes:
+      - ./data/dev:/app/data
+    command: ["pixelzx", "start"]
+    environment:
+      - CONFIG_ENV=development

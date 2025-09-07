@@ -2,7 +2,7 @@
 # with Go source code. If you know what GOPATH is then you probably
 # don't need to bother with make.
 
-.PHONY: geth evm all test lint fmt clean devtools help
+.PHONY: geth evm pixelzx all test lint fmt clean devtools help docker-build docker-build-hub compose-up compose-dev-up compose-logs compose-dev-logs
 
 GOBIN = ./build/bin
 GO ?= latest
@@ -19,6 +19,12 @@ evm:
 	$(GORUN) build/ci.go install ./cmd/evm
 	@echo "Done building."
 	@echo "Run \"$(GOBIN)/evm\" to launch evm."
+
+#? pixelzx: Build pixelzx.
+pixelzx:
+	$(GORUN) build/ci.go install ./cmd/pixelzx
+	@echo "Done building."
+	@echo "Run \"$(GOBIN)/pixelzx\" to launch pixelzx."
 
 #? all: Build all packages and executables.
 all:
@@ -41,6 +47,30 @@ clean:
 	go clean -cache
 	rm -fr build/_workspace/pkg/ $(GOBIN)/*
 
+#? docker-build: Build Docker image.
+docker-build:
+	docker build -t pixelzx-node .
+
+#? docker-build-hub: Build Docker image for Docker Hub.
+docker-build-hub:
+	docker build -t yuchanshin/pixelzx-evm .
+
+#? compose-up: Start production environment with Docker Compose.
+compose-up:
+	docker-compose up -d
+
+#? compose-dev-up: Start development environment with Docker Compose.
+compose-dev-up:
+	docker-compose -f docker-compose.dev.yml up -d
+
+#? compose-logs: Show production environment logs.
+compose-logs:
+	docker-compose logs -f
+
+#? compose-dev-logs: Show development environment logs.
+compose-dev-logs:
+	docker-compose -f docker-compose.dev.yml logs -f
+
 # The devtools target installs tools required for 'go generate'.
 # You need to put $GOBIN (or $GOPATH/bin) in your PATH to use 'go generate'.
 
@@ -60,4 +90,4 @@ help: Makefile
 	@echo '  make [target]'
 	@echo ''
 	@echo 'Targets:'
-	@sed -n 's/^#?//p' $< | column -t -s ':' |  sort | sed -e 's/^/ /'
+	@sed -n 's/^#?//p' $< | column -t -s ':' |  sort | sed -e 's/^/ /
